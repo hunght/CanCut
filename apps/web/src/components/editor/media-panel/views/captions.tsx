@@ -29,6 +29,7 @@ export const languages: Language[] = [
   { code: "RU", name: "Russian" },
   { code: "JP", name: "Japanese" },
   { code: "CN", name: "Chinese" },
+  { code: "VI", name: "Vietnamese" },
 ];
 
 const PRIVACY_DIALOG_KEY = "opencut-transcription-privacy-accepted";
