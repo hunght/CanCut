@@ -13,7 +13,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true && turbo run dev",
     "build": "turbo run build",
     "check-types": "turbo run check-types",
     "lint": "npx ultracite@latest lint",

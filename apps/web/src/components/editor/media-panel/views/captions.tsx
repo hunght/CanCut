@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { extractTimelineAudio } from "@/lib/mediabunny-utils";
 import { encryptWithRandomKey, arrayBufferToBase64 } from "@/lib/zk-encryption";
 import { useTimelineStore } from "@/stores/timeline-store";
+import { useMediaStore } from "@/stores/media-store";
 import { DEFAULT_TEXT_ELEMENT } from "@/constants/text-constants";
 import { Loader2, Shield, Trash2, Upload } from "lucide-react";
 import {
@@ -52,9 +53,39 @@ export function Captions() {
     try {
       setIsProcessing(true);
       setError(null);
+
+      // Check if timeline has audio
+      const timeline = useTimelineStore.getState();
+      const mediaStore = useMediaStore.getState();
+
+      const audioElements = timeline.tracks.flatMap((track) =>
+        track.muted ? [] : track.elements.filter((el) => {
+          if (el.type !== "media") return false;
+          const mediaFile = mediaStore.mediaFiles.find((m) => m.id === (el as any).mediaId);
+          return mediaFile && (mediaFile.type === "video" || mediaFile.type === "audio");
+        })
+      );
+
+      console.log("Audio elements found:", audioElements.length);
+      console.log("Total timeline duration:", timeline.getTotalDuration());
+
+      if (audioElements.length === 0) {
+        throw new Error(
+          "No audio/video media found in timeline. Please add a video or audio file with sound first."
+        );
+      }
+
       setProcessingStep("Extracting audio...");
 
-      const audioBlob = await extractTimelineAudio();
+      let audioBlob: Blob;
+      try {
+        audioBlob = await extractTimelineAudio();
+      } catch (audioError) {
+        console.error("Audio extraction error:", audioError);
+        throw new Error(
+          `Failed to extract audio from timeline. ${audioError instanceof Error ? audioError.message : "This may be due to FFmpeg loading issues or unsupported media formats."}`
+        );
+      }
 
       setProcessingStep("Encrypting audio...");
 
@@ -80,10 +111,22 @@ export function Captions() {
       const { uploadUrl, fileName } = await uploadResponse.json();
 
       // Upload to R2
-      await fetch(uploadUrl, {
-        method: "PUT",
-        body: encryptedBlob,
-      });
+      try {
+        const r2Response = await fetch(uploadUrl, {
+          method: "PUT",
+          body: encryptedBlob,
+        });
+
+        if (!r2Response.ok) {
+          console.error("R2 upload failed:", r2Response.status, r2Response.statusText);
+          throw new Error(`Upload failed: ${r2Response.statusText}`);
+        }
+      } catch (uploadError) {
+        console.error("R2 upload error:", uploadError);
+        throw new Error(
+          "Failed to upload to cloud storage. This may be due to CORS configuration. Check the console for details."
+        );
+      }
 
       setProcessingStep("Transcribing...");
 
