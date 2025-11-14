@@ -247,7 +247,7 @@ export const extractTimelineAudio = async (
     }
 
     const data = await ffmpeg.readFile(outputName);
-    const blob = new Blob([data], { type: "audio/wav" });
+    const blob = new Blob([new Uint8Array(data as Uint8Array)], { type: "audio/wav" });
 
     return blob;
   } catch (error) {
@@ -269,11 +269,11 @@ export const extractTimelineAudio = async (
     for (const inputFile of inputFiles) {
       try {
         await ffmpeg.deleteFile(inputFile);
-      } catch (cleanupError) {}
+      } catch (cleanupError) { }
     }
     try {
       await ffmpeg.deleteFile("timeline_audio.wav");
-    } catch (cleanupError) {}
+    } catch (cleanupError) { }
   }
 };
 
@@ -295,7 +295,7 @@ const generateSilentAudio = async (durationSeconds: number): Promise<Blob> => {
     ]);
 
     const data = await ffmpeg.readFile(outputName);
-    const blob = new Blob([data], { type: "audio/wav" });
+    const blob = new Blob([new Uint8Array(data as Uint8Array)], { type: "audio/wav" });
 
     return blob;
   } catch (error) {

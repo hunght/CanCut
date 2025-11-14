@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
       modalRequestBody.iv = iv;
     }
 
-    // Call Modal transcription service
-    const response = await fetch(env.MODAL_TRANSCRIPTION_URL, {
+    // Call Modal transcription service (guaranteed to exist after isTranscriptionConfigured check)
+    const response = await fetch(env.MODAL_TRANSCRIPTION_URL!, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
