@@ -32,3 +32,20 @@ apps/transcription/__pycache__
 apps/transcription/env
 
 apps/bg-remover/env
+
+# Electron app
+/apps/electron/node_modules
+/apps/electron/out/
+/apps/electron/dist/
+/apps/electron/.vite/
+/apps/electron/coverage/
+/apps/electron/test-results/
+/apps/electron/playwright-report/
+/apps/electron/*.asar
+
+# Electron env files (opt-in example)
+/apps/electron/.env*
+!/apps/electron/.env.example
+
+# macOS system files
+.DS_Store
