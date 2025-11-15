@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { editorStorage } from "@/services/editor-storage";
-import { randomUUID } from "node:crypto";
+
+const randomUUID = () => crypto.randomUUID();
 
 interface TimelineElement {
   id: string;

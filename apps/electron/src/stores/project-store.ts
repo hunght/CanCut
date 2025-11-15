@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { editorStorage, type TProject } from "@/services/editor-storage";
-import { randomUUID } from "node:crypto";
+
+const randomUUID = () => crypto.randomUUID();
 
 export const DEFAULT_CANVAS_SIZE = { width: 1920, height: 1080 } as const;
 export const DEFAULT_FPS = 30;
