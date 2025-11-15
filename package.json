@@ -14,10 +14,18 @@
   ],
   "scripts": {
     "dev": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true && turbo run dev",
+    "dev:electron": "cd apps/electron && bash ./scripts/restart.sh --start",
+    "dev:web": "turbo run dev --filter=@opencut/web",
     "build": "turbo run build",
+    "build:electron": "turbo run build --filter=@learnifytube/electron",
+    "build:web": "turbo run build --filter=@opencut/web",
+    "package:electron": "turbo run package --filter=@learnifytube/electron",
+    "make:electron": "turbo run make --filter=@learnifytube/electron",
     "check-types": "turbo run check-types",
     "lint": "npx ultracite@latest lint",
-    "format": "npx ultracite@latest format"
+    "format": "npx ultracite@latest format",
+    "test": "turbo run test",
+    "test:electron": "turbo run test --filter=@learnifytube/electron"
   },
   "dependencies": {
     "mediabunny": "^1.9.3",

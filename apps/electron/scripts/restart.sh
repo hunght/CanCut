@@ -26,7 +26,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-APP_NAME="yt-dlp-gui"
+APP_NAME="LearnifyTube"
 
 echo -e "${BLUE}🔍 Looking for running processes...${NC}"
 
@@ -98,7 +98,7 @@ fi
 
 if $START_APP; then
     echo -e "${BLUE}🚀 Starting dev app...${NC}"
-    npm run dev
+    bun run dev
 else
-    echo -e "${BLUE}✅ Ready. Run 'npm run dev' or 'npm start' to launch.${NC}"
+    echo -e "${BLUE}✅ Ready. Run 'bun run dev' to launch.${NC}"
 fi

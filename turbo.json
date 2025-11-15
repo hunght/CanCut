@@ -2,8 +2,15 @@
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"],
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        ".vite/**",
+        "out/**"
+      ],
       "env": [
         "DATABASE_URL",
         "BETTER_AUTH_SECRET",
@@ -20,22 +27,68 @@
       ]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": [
+        "^check-types"
+      ]
+    },
+    "type-check": {
+      "dependsOn": [
+        "^type-check"
+      ]
     },
     "dev": {
       "persistent": true,
       "cache": false
     },
+    "package": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "out/**"
+      ],
+      "cache": false
+    },
+    "make": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "out/**"
+      ],
+      "cache": false
+    },
+    "db:generate": {
+      "cache": false
+    },
+    "db:push": {
+      "cache": false
+    },
+    "db:migrate": {
+      "cache": false
+    },
     "lint": {
-      "dependsOn": ["^lint"],
+      "dependsOn": [
+        "^lint"
+      ],
       "cache": false
     },
     "lint:fix": {
-      "dependsOn": ["^lint:fix"],
+      "dependsOn": [
+        "^lint:fix"
+      ],
       "cache": false
     },
     "format": {
-      "dependsOn": ["^format"]
+      "dependsOn": [
+        "^format"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false
     }
   }
 }

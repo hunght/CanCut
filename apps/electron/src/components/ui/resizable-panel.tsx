@@ -78,7 +78,6 @@ export const ResizablePanel = React.forwardRef<HTMLDivElement, ResizablePanelPro
         style={{ width: `${width}px` }}
         {...props}
       >
-        {/* Resize handle */}
         <div
           onMouseDown={handleMouseDown}
           className={cn(

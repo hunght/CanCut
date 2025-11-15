@@ -10,5 +10,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
-  }
+  },
+  "npm.packageManager": "bun",
+  "npm.autoDetect": "off"
 }

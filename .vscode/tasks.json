@@ -1,0 +1,122 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "command": "bun run dev:electron",
+      "problemMatcher": [],
+      "label": "dev:electron",
+      "detail": "Run Electron app in development mode",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true
+    },
+    {
+      "type": "shell",
+      "command": "bun run dev:web",
+      "problemMatcher": [],
+      "label": "dev:web",
+      "detail": "Run web app in development mode",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true
+    },
+    {
+      "type": "shell",
+      "command": "bun run build:electron",
+      "problemMatcher": [],
+      "label": "build:electron",
+      "detail": "Build Electron app",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "bun run build:web",
+      "problemMatcher": [],
+      "label": "build:web",
+      "detail": "Build web app",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "bun run db:generate",
+      "problemMatcher": [],
+      "label": "db:generate",
+      "detail": "Generate database migrations for Electron app",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/electron"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "bun run db:push",
+      "problemMatcher": [],
+      "label": "db:push",
+      "detail": "Push database schema for Electron app",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/electron"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "bun run db:studio",
+      "problemMatcher": [],
+      "label": "db:studio",
+      "detail": "Open Drizzle Studio for Electron app",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/electron"
+      },
+      "isBackground": true
+    },
+    {
+      "type": "shell",
+      "command": "bun run test",
+      "problemMatcher": [],
+      "label": "test:electron",
+      "detail": "Run Electron app tests",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/electron"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "bun run lint",
+      "problemMatcher": [],
+      "label": "lint",
+      "detail": "Lint all workspaces",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "bun run format",
+      "problemMatcher": [],
+      "label": "format",
+      "detail": "Format all workspaces",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "bun run check-types",
+      "problemMatcher": [],
+      "label": "check-types",
+      "detail": "Type check all workspaces",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    }
+  ]
+}

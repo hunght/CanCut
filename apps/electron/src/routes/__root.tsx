@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import BaseLayout from "@/layouts/BaseLayout";
+import EditorLayout from "@/layouts/EditorLayout";
 import { Outlet, createRootRoute, useMatches } from "@tanstack/react-router";
 import { analytics } from "@/helpers/analytics";
 import { logger } from "@/helpers/logger";
@@ -52,6 +53,9 @@ export const RootRoute = createRootRoute({
 function Root(): React.JSX.Element {
   const matches = useMatches();
   const isFullScreenRoute = matches.some((match) => match.pathname === "/raining-letters");
+  const isEditorRoute = matches.some(
+    (match) => match.pathname === "/editor/$projectId" || match.pathname.startsWith("/editor")
+  );
 
   // Log resolved route with extracted params and search when route changes
   useEffect(() => {
@@ -83,6 +87,10 @@ function Root(): React.JSX.Element {
     <>
       {isFullScreenRoute ? (
         <Outlet />
+      ) : isEditorRoute ? (
+        <EditorLayout>
+          <Outlet />
+        </EditorLayout>
       ) : (
         <BaseLayout>
           <Outlet />
