@@ -13,7 +13,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { getConfig } from "./config/env";
 
-import { YtDlpInstaller } from "@/components/ytdlp-installer";
 import { getAppVersion } from "./helpers/version";
 import { logger } from "./helpers/logger";
 
@@ -92,7 +91,6 @@ function App(): React.JSX.Element {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <YtDlpInstaller />
         <MainApp />
       </TooltipProvider>
     </QueryClientProvider>

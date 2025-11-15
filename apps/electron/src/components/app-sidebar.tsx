@@ -24,31 +24,6 @@ const items = [
     url: "/",
     isActive: true,
   },
-  {
-    title: "Channels",
-    icon: Users,
-    url: "/channels",
-  },
-  {
-    title: "Playlists",
-    icon: List,
-    url: "/playlists",
-  },
-  {
-    title: "Subscriptions",
-    icon: Clapperboard,
-    url: "/subscriptions",
-  },
-  {
-    title: "History",
-    icon: History,
-    url: "/history",
-  },
-  {
-    title: "My Words",
-    icon: Languages,
-    url: "/my-words",
-  },
 ];
 
 export function AppSidebar({

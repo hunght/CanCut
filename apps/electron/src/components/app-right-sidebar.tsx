@@ -9,7 +9,6 @@ import {
   rightSidebarContentAtom,
   annotationsSidebarDataAtom,
 } from "@/context/rightSidebar";
-import { DownloadQueueSidebar } from "@/components/DownloadQueueSidebar";
 import { AnnotationsSidebar } from "@/components/AnnotationsSidebar";
 
 export function AppRightSidebar({
@@ -34,7 +33,9 @@ export function AppRightSidebar({
           currentTime={annotationsData.currentTime}
         />
       ) : (
-        <DownloadQueueSidebar />
+        <div className="flex flex-1 items-center justify-center text-muted-foreground">
+          No Content
+        </div>
       )}
     </div>
   );
