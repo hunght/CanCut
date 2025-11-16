@@ -1,0 +1,88 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { Tab, tabs, useMediaPanelStore } from "./store";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useEffect, useRef, useState } from "react";
+
+export function TabBar() {
+  const { activeTab, setActiveTab } = useMediaPanelStore();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showTopFade, setShowTopFade] = useState(false);
+  const [showBottomFade, setShowBottomFade] = useState(false);
+
+  const checkScrollPosition = () => {
+    const element = scrollRef.current;
+    if (!element) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = element;
+    setShowTopFade(scrollTop > 0);
+    setShowBottomFade(scrollTop < scrollHeight - clientHeight - 1);
+  };
+
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+
+    checkScrollPosition();
+    element.addEventListener("scroll", checkScrollPosition);
+
+    const resizeObserver = new ResizeObserver(checkScrollPosition);
+    resizeObserver.observe(element);
+
+    return () => {
+      element.removeEventListener("scroll", checkScrollPosition);
+      resizeObserver.disconnect();
+    };
+  }, []);
+
+  return (
+    <div className="relative flex">
+      <div
+        ref={scrollRef}
+        className="scrollbar-hidden relative flex h-full w-full flex-col items-center justify-start gap-5 overflow-y-auto px-4 py-4"
+      >
+        {(Object.keys(tabs) as Tab[]).map((tabKey) => {
+          const tab = tabs[tabKey];
+          return (
+            <div
+              className={cn(
+                "z-[100] flex cursor-pointer flex-col items-center gap-0.5",
+                activeTab === tabKey ? "text-primary !opacity-100" : "text-muted-foreground"
+              )}
+              onClick={() => setActiveTab(tabKey)}
+              key={tabKey}
+            >
+              <Tooltip delayDuration={10}>
+                <TooltipTrigger asChild>
+                  <tab.icon className="size-[1.1rem]! opacity-100 hover:opacity-75" />
+                </TooltipTrigger>
+                <TooltipContent side="right" align="center" sideOffset={8}>
+                  <div className="dark:text-base-gray-950 text-sm font-medium leading-none text-black dark:text-white">
+                    {tab.label}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          );
+        })}
+      </div>
+
+      <FadeOverlay direction="top" show={showTopFade} />
+      <FadeOverlay direction="bottom" show={showBottomFade} />
+    </div>
+  );
+}
+
+function FadeOverlay({ direction, show }: { direction: "top" | "bottom"; show: boolean }) {
+  return (
+    <div
+      className={cn(
+        "pointer-events-none absolute left-0 right-0 z-[101] h-6 transition-opacity duration-200",
+        direction === "top" && show
+          ? "from-panel top-0 bg-gradient-to-b to-transparent"
+          : "from-panel bottom-0 bg-gradient-to-t to-transparent"
+      )}
+    />
+  );
+}

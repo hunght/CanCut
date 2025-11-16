@@ -48,8 +48,20 @@ class StorageService {
     );
 
     const mediaFilesAdapter = new OPFSAdapter(`media-files-${projectId}`);
+    // Fallback: store File blobs inside IndexedDB when OPFS is unavailable
+    // We wrap the File in an object because IndexedDBAdapter expects an object with an id keyPath.
+    type MediaBlobRecord = { blob: File };
+    const mediaFilesFallbackAdapter = new IndexedDBAdapter<MediaBlobRecord>(
+      `${this.config.mediaDb}-${projectId}`,
+      "media-files-fallback",
+      this.config.version
+    );
 
-    return { mediaMetadataAdapter, mediaFilesAdapter };
+    return {
+      mediaMetadataAdapter,
+      mediaFilesAdapter,
+      mediaFilesFallbackAdapter,
+    };
   }
 
   // Helper to get project-specific timeline adapter
@@ -166,11 +178,18 @@ class StorageService {
     projectId: string;
     mediaItem: MediaFile;
   }): Promise<void> {
-    const { mediaMetadataAdapter, mediaFilesAdapter } =
-      this.getProjectMediaAdapters({ projectId });
+    const {
+      mediaMetadataAdapter,
+      mediaFilesAdapter,
+      mediaFilesFallbackAdapter,
+    } = this.getProjectMediaAdapters({ projectId });
 
-    // Save file to project-specific OPFS
-    await mediaFilesAdapter.set(mediaItem.id, mediaItem.file);
+    // Save file to OPFS when supported; otherwise, use IndexedDB fallback
+    if (OPFSAdapter.isSupported()) {
+      await mediaFilesAdapter.set(mediaItem.id, mediaItem.file);
+    } else {
+      await mediaFilesFallbackAdapter.set(mediaItem.id, { blob: mediaItem.file });
+    }
 
     // Save metadata to project-specific IndexedDB
     const metadata: MediaFileData = {
@@ -195,13 +214,23 @@ class StorageService {
     projectId: string;
     id: string;
   }): Promise<MediaFile | null> {
-    const { mediaMetadataAdapter, mediaFilesAdapter } =
-      this.getProjectMediaAdapters({ projectId });
+    const {
+      mediaMetadataAdapter,
+      mediaFilesAdapter,
+      mediaFilesFallbackAdapter,
+    } = this.getProjectMediaAdapters({ projectId });
 
-    const [file, metadata] = await Promise.all([
-      mediaFilesAdapter.get(id),
+    const [opfsFile, metadata] = await Promise.all([
+      OPFSAdapter.isSupported() ? mediaFilesAdapter.get(id) : Promise.resolve(null),
       mediaMetadataAdapter.get(id),
     ]);
+
+    let file: File | null = opfsFile;
+    if (!file) {
+      // Try fallback storage
+      const fallback = await mediaFilesFallbackAdapter.get(id);
+      file = fallback ? fallback.blob : null;
+    }
 
     if (!file || !metadata) return null;
 
@@ -264,11 +293,16 @@ class StorageService {
     projectId: string;
     id: string;
   }): Promise<void> {
-    const { mediaMetadataAdapter, mediaFilesAdapter } =
-      this.getProjectMediaAdapters({ projectId });
+    const {
+      mediaMetadataAdapter,
+      mediaFilesAdapter,
+      mediaFilesFallbackAdapter,
+    } = this.getProjectMediaAdapters({ projectId });
 
-    await Promise.all([
+    // Attempt removal from both storages to be safe
+    await Promise.allSettled([
       mediaFilesAdapter.remove(id),
+      mediaFilesFallbackAdapter.remove(id),
       mediaMetadataAdapter.remove(id),
     ]);
   }
@@ -278,12 +312,16 @@ class StorageService {
   }: {
     projectId: string;
   }): Promise<void> {
-    const { mediaMetadataAdapter, mediaFilesAdapter } =
-      this.getProjectMediaAdapters({ projectId });
+    const {
+      mediaMetadataAdapter,
+      mediaFilesAdapter,
+      mediaFilesFallbackAdapter,
+    } = this.getProjectMediaAdapters({ projectId });
 
-    await Promise.all([
+    await Promise.allSettled([
       mediaMetadataAdapter.clear(),
       mediaFilesAdapter.clear(),
+      mediaFilesFallbackAdapter.clear(),
     ]);
   }
 

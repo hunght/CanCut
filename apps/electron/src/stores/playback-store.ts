@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useTimelineStore } from "./timeline-store";
 
 interface PlaybackStore {
   isPlaying: boolean;
@@ -30,12 +31,30 @@ export const usePlaybackStore = create<PlaybackStore>((set, get) => ({
   previousVolume: 1,
   speed: 1.0,
   play: () => {
+    if (get().isPlaying) return;
     set({ isPlaying: true });
-    // TODO: Implement playback timer for Electron
+    let last = performance.now();
+    const loop = () => {
+      if (!get().isPlaying) return;
+      const now = performance.now();
+      const deltaMs = now - last;
+      last = now;
+      const deltaSeconds = (deltaMs / 1000) * get().speed;
+
+      const duration = useTimelineStore.getState().getTotalDuration();
+      const next = get().currentTime + deltaSeconds;
+      if (next >= duration && duration > 0) {
+        set({ currentTime: duration, isPlaying: false });
+        return;
+      }
+      set({ currentTime: next, duration });
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
   },
   pause: () => {
+    if (!get().isPlaying) return;
     set({ isPlaying: false });
-    // TODO: Stop playback timer
   },
   toggle: () => {
     const { isPlaying } = get();
@@ -46,8 +65,8 @@ export const usePlaybackStore = create<PlaybackStore>((set, get) => ({
     }
   },
   seek: (time: number) => {
-    const { duration } = get();
-    const clampedTime = Math.max(0, Math.min(duration, time));
+    const duration = useTimelineStore.getState().getTotalDuration();
+    const clampedTime = Math.max(0, Math.min(duration || 0, time));
     set({ currentTime: clampedTime });
     // TODO: Dispatch playback event for Electron
   },

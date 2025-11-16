@@ -322,8 +322,8 @@ app.whenReady().then(async () => {
           "default-src 'self'; " +
             "script-src 'self' 'unsafe-inline' https://*.posthog.com; " +
             "connect-src 'self' https://*.posthog.com; " +
-            "img-src 'self' data: file: local-file: https://*.posthog.com https://i.ytimg.com https://*.ytimg.com https://yt3.ggpht.com; " +
-            "media-src 'self' file: local-file:; " +
+            "img-src 'self' data: blob: file: local-file: https://*.posthog.com https://i.ytimg.com https://*.ytimg.com https://yt3.ggpht.com; " +
+            "media-src 'self' blob: file: local-file:; " +
             "style-src 'self' 'unsafe-inline'; " +
             "frame-src 'self';",
         ],

@@ -25,7 +25,8 @@
     "lint": "npx ultracite@latest lint",
     "format": "npx ultracite@latest format",
     "test": "turbo run test",
-    "test:electron": "turbo run test --filter=@learnifytube/electron"
+    "test:electron": "turbo run test --filter=@learnifytube/electron",
+    "copy:web-editor": "node apps/electron/scripts/copy-web-editor-to-electron.cjs"
   },
   "dependencies": {
     "mediabunny": "^1.9.3",

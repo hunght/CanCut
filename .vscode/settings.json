@@ -12,5 +12,6 @@
     "source.organizeImports.biome": "explicit"
   },
   "npm.packageManager": "bun",
-  "npm.autoDetect": "off"
+  "npm.autoDetect": "off",
+  "vitest.disableWorkspaceWarning": true
 }
