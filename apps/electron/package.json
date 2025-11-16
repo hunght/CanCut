@@ -16,6 +16,7 @@
     "lint:fix": "eslint . --fix",
     "lint:complexity": "eslint . --format json | node scripts/complexity-report-html.cjs",
     "dev": "electron-forge start",
+    "dev:electron": "electron-forge start",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",

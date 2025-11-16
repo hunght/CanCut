@@ -2,6 +2,7 @@ import { Button } from "../ui/button";
 import { ChevronDown, Save } from "lucide-react";
 import { useProjectStore } from "@/stores/project-store";
 import { useTimelineStore } from "@/stores/timeline-store";
+import { PanelPresetSelector } from "./panel-preset-selector";
 
 export function EditorHeader() {
   const { activeProject, saveCurrentProject } = useProjectStore();
@@ -24,6 +25,7 @@ export function EditorHeader() {
       </div>
 
       <div className="flex items-center gap-2">
+        <PanelPresetSelector />
         <Button onClick={handleSave} size="sm" variant="default">
           <Save className="mr-1.5 h-4 w-4" />
           Save

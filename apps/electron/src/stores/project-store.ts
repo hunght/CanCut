@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { editorStorage, type TProject } from "@/services/editor-storage";
+import { trpcClient } from "@/utils/trpc";
+import type { TProject } from "@/services/editor-storage";
 
 const randomUUID = () => crypto.randomUUID();
 
@@ -75,7 +76,26 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   loadAllProjects: async () => {
     if (!get().isInitialized) set({ isLoading: true });
     try {
-      const projects = await editorStorage.loadAllProjects();
+      const rawProjects = await trpcClient.editor.projects.list.query();
+      const projects: TProject[] = rawProjects.map((p) => ({
+        id: p.id,
+        name: p.name,
+        thumbnail: p.thumbnail ?? "",
+        createdAt: new Date(p.createdAt),
+        updatedAt: new Date(p.updatedAt ?? p.createdAt),
+        scenes: [],
+        currentSceneId: p.currentSceneId ?? "",
+        backgroundColor: p.backgroundColor ?? "#000000",
+        backgroundType: (p.backgroundType as "color" | "blur") ?? "color",
+        blurIntensity: p.blurIntensity ?? 8,
+        bookmarks: p.bookmarksJson ? JSON.parse(p.bookmarksJson) : [],
+        fps: p.fps ?? 30,
+        canvasSize: {
+          width: p.canvasWidth ?? 1920,
+          height: p.canvasHeight ?? 1080,
+        },
+        canvasMode: (p.canvasMode as "preset" | "custom") ?? "preset",
+      }));
       set({ savedProjects: projects });
     } finally {
       set({ isLoading: false, isInitialized: true });
@@ -83,18 +103,43 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   createNewProject: async (name: string) => {
-    const project = createDefaultProject(name);
-    set({ activeProject: project });
-    await editorStorage.saveProject({ project });
+    const result = await trpcClient.editor.projects.create.mutate({ name });
     await get().loadAllProjects();
-    return project.id;
+    await get().loadProject(result.id);
+    return result.id;
   },
 
   loadProject: async (id: string) => {
     set({ isLoading: true });
     try {
-      const project = await editorStorage.loadProject({ id });
-      if (!project) throw new Error("Project not found");
+      const data = await trpcClient.editor.projects.get.query({ id });
+      if (!data || !data.project) throw new Error("Project not found");
+      const p = data.project;
+      const project: TProject = {
+        id: p.id,
+        name: p.name,
+        thumbnail: p.thumbnail ?? "",
+        scenes: data.scenes.map((s) => ({
+          id: s.id,
+          name: s.name,
+          isMain: !!s.isMain,
+          createdAt: new Date(s.createdAt),
+          updatedAt: new Date(s.updatedAt ?? s.createdAt),
+        })),
+        currentSceneId: p.currentSceneId ?? "",
+        backgroundColor: p.backgroundColor ?? "#000000",
+        backgroundType: (p.backgroundType as "color" | "blur") ?? "color",
+        blurIntensity: p.blurIntensity ?? 8,
+        bookmarks: p.bookmarksJson ? JSON.parse(p.bookmarksJson) : [],
+        fps: p.fps ?? 30,
+        canvasSize: {
+          width: p.canvasWidth ?? 1920,
+          height: p.canvasHeight ?? 1080,
+        },
+        canvasMode: (p.canvasMode as "preset" | "custom") ?? "preset",
+        createdAt: new Date(p.createdAt),
+        updatedAt: new Date(p.updatedAt),
+      };
       set({ activeProject: project });
     } finally {
       set({ isLoading: false });
@@ -104,17 +149,27 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   saveCurrentProject: async () => {
     const { activeProject } = get();
     if (!activeProject) return;
-    await editorStorage.saveProject({ project: { ...activeProject, updatedAt: new Date() } });
+    await trpcClient.editor.projects.updateSettings.mutate({
+      id: activeProject.id,
+      backgroundType: activeProject.backgroundType,
+      backgroundColor: activeProject.backgroundColor,
+      blurIntensity: activeProject.blurIntensity,
+      fps: activeProject.fps,
+      canvasMode: activeProject.canvasMode,
+      canvasWidth: activeProject.canvasSize.width,
+      canvasHeight: activeProject.canvasSize.height,
+      bookmarks: activeProject.bookmarks,
+      currentSceneId: activeProject.currentSceneId,
+    });
     await get().loadAllProjects();
   },
 
   renameProject: async (id: string, name: string) => {
-    const { savedProjects, activeProject } = get();
-    const found = savedProjects.find((p) => p.id === id);
-    if (!found) return;
-    const updated = { ...found, name, updatedAt: new Date() };
-    set({ activeProject: activeProject?.id === id ? updated : activeProject });
-    await editorStorage.saveProject({ project: updated });
+    await trpcClient.editor.projects.rename.mutate({ id, name });
+    const { activeProject } = get();
+    if (activeProject?.id === id) {
+      await get().loadProject(id);
+    }
     await get().loadAllProjects();
   },
 
@@ -123,7 +178,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     if (!activeProject) return;
     const updated = { ...activeProject, fps, updatedAt: new Date() };
     set({ activeProject: updated });
-    await editorStorage.saveProject({ project: updated });
+    await trpcClient.editor.projects.updateSettings.mutate({ id: activeProject.id, fps });
     await get().loadAllProjects();
   },
 
@@ -137,7 +192,12 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       updatedAt: new Date(),
     };
     set({ activeProject: updated });
-    await editorStorage.saveProject({ project: updated });
+    await trpcClient.editor.projects.updateSettings.mutate({
+      id: activeProject.id,
+      canvasWidth: size.width,
+      canvasHeight: size.height,
+      canvasMode: updated.canvasMode,
+    });
     await get().loadAllProjects();
   },
 
@@ -152,7 +212,12 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       updatedAt: new Date(),
     };
     set({ activeProject: updated });
-    await editorStorage.saveProject({ project: updated });
+    await trpcClient.editor.projects.updateSettings.mutate({
+      id: activeProject.id,
+      backgroundType: type,
+      backgroundColor: updated.backgroundColor,
+      blurIntensity: updated.blurIntensity,
+    });
     await get().loadAllProjects();
   },
 
@@ -168,7 +233,10 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         : [...activeProject.bookmarks, frameTime].sort((a, b) => a - b);
     const updated = { ...activeProject, bookmarks, updatedAt: new Date() };
     set({ activeProject: updated });
-    await editorStorage.saveProject({ project: updated });
+    await trpcClient.editor.projects.updateSettings.mutate({
+      id: activeProject.id,
+      bookmarks,
+    });
     await get().loadAllProjects();
   },
 
@@ -181,32 +249,16 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   deleteProject: async (id: string) => {
-    await editorStorage.deleteProject({ id });
+    await trpcClient.editor.projects.delete.mutate({ id });
     const { activeProject } = get();
     if (activeProject?.id === id) set({ activeProject: null });
     await get().loadAllProjects();
   },
 
   duplicateProject: async (id: string) => {
-    const project = await editorStorage.loadProject({ id });
-    if (!project) throw new Error("Project not found");
-    const baseMatch = project.name.match(/^(?:\(\d+\)\s+)?(.+)$/);
-    const baseName = baseMatch ? baseMatch[1] : project.name;
-    const existing = get()
-      .savedProjects.map((p) => p.name.match(/^\((\d+)\)\s+(.+)$/))
-      .filter((m) => m && m[2] === baseName)
-      .map((m) => Number(m![1]));
-    const nextNum = existing.length ? Math.max(...existing) + 1 : 1;
-    const cloned: TProject = {
-      ...project,
-      id: randomUUID(),
-      name: `(${nextNum}) ${baseName}`,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    await editorStorage.saveProject({ project: cloned });
+    const result = await trpcClient.editor.projects.duplicate.mutate({ id });
     await get().loadAllProjects();
-    return cloned.id;
+    return result.id;
   },
 
   closeProject: () => {
