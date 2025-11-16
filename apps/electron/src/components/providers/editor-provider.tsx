@@ -1,8 +1,13 @@
+
+
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { useEditorStore } from "../../stores/editor-store";
-import { useKeybindingsListener, useKeybindingDisabler } from "../../hooks/use-keybindings";
-import { useEditorActions } from "../../hooks/use-editor-actions";
+import { useEditorStore } from "@/stores/editor-store";
+import {
+  useKeybindingsListener,
+  useKeybindingDisabler,
+} from "@/hooks/use-keybindings";
+import { useEditorActions } from "@/hooks/use-editor-actions";
 
 interface EditorProviderProps {
   children: React.ReactNode;
@@ -34,7 +39,7 @@ export function EditorProvider({ children }: EditorProviderProps) {
   // Show loading screen while initializing
   if (isInitializing || !isPanelsReady) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-background">
+      <div className="h-screen w-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Loading editor...</p>

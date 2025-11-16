@@ -1,79 +1,72 @@
 import { create } from "zustand";
-import { trpcClient } from "@/utils/trpc";
-
-export type MediaType = "image" | "video" | "audio";
-
-export interface MediaFile {
-  id: string;
-  name: string;
-  url: string;
-  thumbnailUrl?: string;
-  type: MediaType;
-  width?: number;
-  height?: number;
-  duration?: number;
-  size?: number;
-  filePath: string;
-  ephemeral?: boolean;
-}
+import { storageService } from "@/lib/storage/storage-service";
+import { useTimelineStore } from "./timeline-store";
+import { generateUUID } from "@/lib/utils";
+import { MediaType, MediaFile } from "@/types/media";
+import { videoCache } from "@/lib/video-cache";
 
 interface MediaStore {
   mediaFiles: MediaFile[];
   isLoading: boolean;
-  addMediaFile: (projectId: string, file: Omit<MediaFile, "id">) => Promise<void>;
+
+  // Actions
+  addMediaFile: (
+    projectId: string,
+    file: Omit<MediaFile, "id">
+  ) => Promise<void>;
   removeMediaFile: (projectId: string, id: string) => Promise<void>;
   loadProjectMedia: (projectId: string) => Promise<void>;
   clearProjectMedia: (projectId: string) => Promise<void>;
   clearAllMedia: () => void;
 }
 
+// Helper function to determine file type
 export const getFileType = (file: File): MediaType | null => {
   const { type } = file;
-  if (type.startsWith("image/")) return "image";
-  if (type.startsWith("video/")) return "video";
-  if (type.startsWith("audio/")) return "audio";
+
+  if (type.startsWith("image/")) {
+    return "image";
+  }
+  if (type.startsWith("video/")) {
+    return "video";
+  }
+  if (type.startsWith("audio/")) {
+    return "audio";
+  }
+
   return null;
 };
 
-export const getImageDimensions = (file: File): Promise<{ width: number; height: number }> => {
+// Helper function to get image dimensions
+export const getImageDimensions = (
+  file: File
+): Promise<{ width: number; height: number }> => {
   return new Promise((resolve, reject) => {
     const img = new window.Image();
+
     img.addEventListener("load", () => {
-      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
+      resolve({ width, height });
       img.remove();
     });
+
     img.addEventListener("error", () => {
       reject(new Error("Could not load image"));
       img.remove();
     });
+
     img.src = URL.createObjectURL(file);
   });
 };
 
-export const getMediaDuration = (file: File): Promise<number> => {
-  return new Promise((resolve, reject) => {
-    const element = document.createElement(
-      file.type.startsWith("video/") ? "video" : "audio"
-    ) as HTMLVideoElement;
-    element.addEventListener("loadedmetadata", () => {
-      resolve(element.duration);
-      element.remove();
-    });
-    element.addEventListener("error", () => {
-      reject(new Error("Could not load media"));
-      element.remove();
-    });
-    element.src = URL.createObjectURL(file);
-    element.load();
-  });
-};
-
+// Helper function to generate video thumbnail and get dimensions
 export const generateVideoThumbnail = (
   file: File
 ): Promise<{ thumbnailUrl: string; width: number; height: number }> => {
   return new Promise((resolve, reject) => {
-    const video = document.createElement("video");
-    const canvas = document.createElement("canvas");
+    const video = document.createElement("video") as HTMLVideoElement;
+    const canvas = document.createElement("canvas") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d");
 
     if (!ctx) {
@@ -84,17 +77,20 @@ export const generateVideoThumbnail = (
     video.addEventListener("loadedmetadata", () => {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
+
+      // Seek to 1 second or 10% of duration, whichever is smaller
       video.currentTime = Math.min(1, video.duration * 0.1);
     });
 
     video.addEventListener("seeked", () => {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const thumbnailUrl = canvas.toDataURL("image/jpeg", 0.8);
-      resolve({
-        thumbnailUrl,
-        width: video.videoWidth,
-        height: video.videoHeight,
-      });
+      const width = video.videoWidth;
+      const height = video.videoHeight;
+
+      resolve({ thumbnailUrl, width, height });
+
+      // Cleanup
       video.remove();
       canvas.remove();
     });
@@ -110,53 +106,104 @@ export const generateVideoThumbnail = (
   });
 };
 
+// Helper function to get media duration
+export const getMediaDuration = (file: File): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    const element = document.createElement(
+      file.type.startsWith("video/") ? "video" : "audio"
+    ) as HTMLVideoElement;
+
+    element.addEventListener("loadedmetadata", () => {
+      resolve(element.duration);
+      element.remove();
+    });
+
+    element.addEventListener("error", () => {
+      reject(new Error("Could not load media"));
+      element.remove();
+    });
+
+    element.src = URL.createObjectURL(file);
+    element.load();
+  });
+};
+
+export const getMediaAspectRatio = (item: MediaFile): number => {
+  if (item.width && item.height) {
+    return item.width / item.height;
+  }
+  return 16 / 9; // Default aspect ratio
+};
+
 export const useMediaStore = create<MediaStore>((set, get) => ({
   mediaFiles: [],
   isLoading: false,
 
-  addMediaFile: async (projectId, fileData) => {
+  addMediaFile: async (projectId, file) => {
     const newItem: MediaFile = {
-      ...fileData,
-      id: crypto.randomUUID(),
+      ...file,
+      id: generateUUID(),
     };
 
-    // Add to local state immediately
-    set((state) => ({ mediaFiles: [...state.mediaFiles, newItem] }));
+    // Add to local state immediately for UI responsiveness
+    set((state) => ({
+      mediaFiles: [...state.mediaFiles, newItem],
+    }));
 
-    // Save to SQLite via tRPC
+    // Save to persistent storage in background
     try {
-      await trpcClient.editor.media.add.mutate({
-        projectId,
-        id: newItem.id,
-        name: newItem.name,
-        type: newItem.type,
-        filePath: newItem.filePath,
-        width: newItem.width !== undefined ? Math.round(newItem.width) : undefined,
-        height: newItem.height !== undefined ? Math.round(newItem.height) : undefined,
-        // API expects integer; duration from metadata can be float seconds
-        duration: newItem.duration !== undefined ? Math.round(newItem.duration) : undefined,
-        size: newItem.size,
-        ephemeral: newItem.ephemeral,
-      });
+      await storageService.saveMediaFile({ projectId, mediaItem: newItem });
     } catch (error) {
       console.error("Failed to save media item:", error);
+      // Remove from local state if save failed
       set((state) => ({
-        mediaFiles: state.mediaFiles.filter((m) => m.id !== newItem.id),
+        mediaFiles: state.mediaFiles.filter((media) => media.id !== newItem.id),
       }));
     }
   },
 
-  removeMediaFile: async (projectId, id) => {
-    const item = get().mediaFiles.find((m) => m.id === id);
-    if (item?.url) URL.revokeObjectURL(item.url);
-    if (item?.thumbnailUrl) URL.revokeObjectURL(item.thumbnailUrl);
+  removeMediaFile: async (projectId: string, id: string) => {
+    const state = get();
+    const item = state.mediaFiles.find((media) => media.id === id);
 
+    videoCache.clearVideo(id);
+
+    // Cleanup object URLs to prevent memory leaks
+    if (item?.url) {
+      URL.revokeObjectURL(item.url);
+      if (item.thumbnailUrl) {
+        URL.revokeObjectURL(item.thumbnailUrl);
+      }
+    }
+
+    // 1) Remove from local state immediately
     set((state) => ({
-      mediaFiles: state.mediaFiles.filter((m) => m.id !== id),
+      mediaFiles: state.mediaFiles.filter((media) => media.id !== id),
     }));
 
+    // 2) Cascade into the timeline: remove any elements using this media ID
+    const timeline = useTimelineStore.getState();
+    const { tracks, deleteSelected, setSelectedElements } = timeline;
+
+    // Find all elements that reference this media
+    const elementsToRemove: Array<{ trackId: string; elementId: string }> = [];
+    for (const track of tracks) {
+      for (const el of track.elements) {
+        if (el.type === "media" && el.mediaId === id) {
+          elementsToRemove.push({ trackId: track.id, elementId: el.id });
+        }
+      }
+    }
+
+    // If there are elements to remove, use unified delete function
+    if (elementsToRemove.length > 0) {
+      setSelectedElements(elementsToRemove);
+      deleteSelected();
+    }
+
+    // 3) Remove from persistent storage
     try {
-      await trpcClient.editor.media.remove.mutate({ id });
+      await storageService.deleteMediaFile({ projectId, id });
     } catch (error) {
       console.error("Failed to delete media item:", error);
     }
@@ -164,25 +211,36 @@ export const useMediaStore = create<MediaStore>((set, get) => ({
 
   loadProjectMedia: async (projectId) => {
     set({ isLoading: true });
+
     try {
-      const mediaItems = await trpcClient.editor.media.listForProject.query({
-        projectId,
-      });
+      const mediaItems = await storageService.loadAllMediaFiles({ projectId });
 
-      const mapped: MediaFile[] = mediaItems.map((item) => ({
-        id: item.id,
-        name: item.name,
-        type: item.type as MediaType,
-        filePath: item.filePath,
-        url: `file://${item.filePath}`,
-        width: item.width ?? undefined,
-        height: item.height ?? undefined,
-        duration: item.duration ?? undefined,
-        size: item.size ?? undefined,
-        ephemeral: !!item.ephemeral,
-      }));
+      // Regenerate thumbnails for video items
+      const updatedMediaItems = await Promise.all(
+        mediaItems.map(async (item) => {
+          if (item.type === "video" && item.file) {
+            try {
+              const { thumbnailUrl, width, height } =
+                await generateVideoThumbnail(item.file);
+              return {
+                ...item,
+                thumbnailUrl,
+                width: width || item.width,
+                height: height || item.height,
+              };
+            } catch (error) {
+              console.error(
+                `Failed to regenerate thumbnail for video ${item.id}:`,
+                error
+              );
+              return item;
+            }
+          }
+          return item;
+        })
+      );
 
-      set({ mediaFiles: mapped });
+      set({ mediaFiles: updatedMediaItems });
     } catch (error) {
       console.error("Failed to load media items:", error);
     } finally {
@@ -191,25 +249,48 @@ export const useMediaStore = create<MediaStore>((set, get) => ({
   },
 
   clearProjectMedia: async (projectId) => {
-    get().mediaFiles.forEach((item) => {
-      if (item.url) URL.revokeObjectURL(item.url);
-      if (item.thumbnailUrl) URL.revokeObjectURL(item.thumbnailUrl);
+    const state = get();
+
+    // Cleanup all object URLs
+    state.mediaFiles.forEach((item) => {
+      if (item.url) {
+        URL.revokeObjectURL(item.url);
+      }
+      if (item.thumbnailUrl) {
+        URL.revokeObjectURL(item.thumbnailUrl);
+      }
     });
 
+    // Clear local state
     set({ mediaFiles: [] });
 
+    // Clear persistent storage
     try {
-      await trpcClient.editor.media.removeAllForProject.mutate({ projectId });
+      const mediaIds = state.mediaFiles.map((item) => item.id);
+      await Promise.all(
+        mediaIds.map((id) => storageService.deleteMediaFile({ projectId, id }))
+      );
     } catch (error) {
-      console.error("Failed to clear media items:", error);
+      console.error("Failed to clear media items from storage:", error);
     }
   },
 
   clearAllMedia: () => {
-    get().mediaFiles.forEach((item) => {
-      if (item.url) URL.revokeObjectURL(item.url);
-      if (item.thumbnailUrl) URL.revokeObjectURL(item.thumbnailUrl);
+    const state = get();
+
+    videoCache.clearAll();
+
+    // Cleanup all object URLs
+    state.mediaFiles.forEach((item) => {
+      if (item.url) {
+        URL.revokeObjectURL(item.url);
+      }
+      if (item.thumbnailUrl) {
+        URL.revokeObjectURL(item.thumbnailUrl);
+      }
     });
+
+    // Clear local state
     set({ mediaFiles: [] });
   },
 }));

@@ -1,4 +1,4 @@
-"use client";
+
 
 import { Button } from "../ui/button";
 import {
@@ -43,7 +43,7 @@ export function PanelPresetSelector() {
         <Button
           variant="secondary"
           size="sm"
-          className="flex h-8 items-center gap-1 px-2 text-xs"
+          className="h-8 px-2 flex items-center gap-1 text-xs"
           title="Panel Presets"
         >
           <LayoutPanelTop className="h-4 w-4" />
@@ -51,20 +51,26 @@ export function PanelPresetSelector() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-64">
-        <div className="px-3 py-2 text-xs font-medium text-muted-foreground">Panel Presets</div>
+        <div className="px-3 py-2 text-xs font-medium text-muted-foreground">
+          Panel Presets
+        </div>
         <DropdownMenuSeparator />
         {(Object.keys(PRESET_LABELS) as PanelPreset[]).map((preset) => (
           <DropdownMenuItem
             key={preset}
             onClick={() => handlePresetChange(preset)}
-            className="flex cursor-pointer items-start justify-between gap-2 px-3 py-2"
+            className="flex items-start justify-between gap-2 py-2 px-3 cursor-pointer"
           >
-            <div className="min-w-0 flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">{PRESET_LABELS[preset]}</span>
-                {activePreset === preset && <div className="h-2 w-2 rounded-full bg-primary" />}
+                <span className="font-medium text-sm">
+                  {PRESET_LABELS[preset]}
+                </span>
+                {activePreset === preset && (
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                )}
               </div>
-              <p className="mt-0.5 text-xs leading-tight text-muted-foreground">
+              <p className="text-xs text-muted-foreground mt-0.5 leading-tight">
                 {PRESET_DESCRIPTIONS[preset]}
               </p>
             </div>

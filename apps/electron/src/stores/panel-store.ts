@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type PanelPreset = "default" | "media" | "inspector" | "vertical-preview";
+export type PanelPreset =
+  | "default"
+  | "media"
+  | "inspector"
+  | "vertical-preview";
 
 interface PanelSizes {
   toolsPanel: number;
@@ -198,7 +202,13 @@ export const usePanelStore = create<PanelState>()(
       },
 
       getCurrentPresetSizes: () => {
-        const { toolsPanel, previewPanel, propertiesPanel, mainContent, timeline } = get();
+        const {
+          toolsPanel,
+          previewPanel,
+          propertiesPanel,
+          mainContent,
+          timeline,
+        } = get();
         return {
           toolsPanel,
           previewPanel,

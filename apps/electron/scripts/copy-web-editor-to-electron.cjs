@@ -33,62 +33,49 @@ function copyDirFiltered(srcDir, destDir, includes) {
   }
 }
 
+function copyDirRecursiveOverwrite(srcDir, destDir) {
+  ensureDirSync(destDir);
+  const entries = fs.readdirSync(srcDir, { withFileTypes: true });
+  for (const entry of entries) {
+    const srcPath = path.join(srcDir, entry.name);
+    const destPath = path.join(destDir, entry.name);
+    if (entry.isDirectory()) {
+      copyDirRecursiveOverwrite(srcPath, destPath);
+    } else {
+      copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
 function main() {
   const repoRoot = path.resolve(__dirname, "../../..");
-  const mappings = [
-    // Copy editor components
-    {
-      from: path.join(repoRoot, "apps/web/src/components/editor"),
-      to: path.join(repoRoot, "apps/electron/src/components/editor"),
-      includes: [],
-    },
-    // Hooks commonly used by editor
-    {
-      from: path.join(repoRoot, "apps/web/src/hooks"),
-      to: path.join(repoRoot, "apps/electron/src/hooks"),
-      includes: [
-        "use-timeline-zoom.ts",
-        "use-timeline-snapping.ts",
-        "use-edge-auto-scroll.ts",
-        "use-selection-box.ts",
-        "use-highlight-scroll.ts",
-        "use-frame-cache.ts",
-      ],
-    },
-    // Constants
-    {
-      from: path.join(repoRoot, "apps/web/src/constants"),
-      to: path.join(repoRoot, "apps/electron/src/constants"),
-      includes: ["timeline-constants.ts", "text-constants.ts"],
-    },
-    // Types
-    {
-      from: path.join(repoRoot, "apps/web/src/types"),
-      to: path.join(repoRoot, "apps/electron/src/types"),
-      includes: ["timeline.ts", "media.ts"],
-    },
-    // Lib utilities used by editor
-    {
-      from: path.join(repoRoot, "apps/web/src/lib"),
-      to: path.join(repoRoot, "apps/electron/src/lib"),
-      includes: [
-        "time.ts",
-        "timeline-renderer.ts",
-        "video-cache.ts",
-        "media-processing.ts",
-        "mediabunny-utils.ts",
-      ],
-    },
-  ];
+  const webSrc = path.join(repoRoot, "apps/web/src");
+  const electronSrc = path.join(repoRoot, "apps/electron/src");
 
-  for (const map of mappings) {
-    if (!fs.existsSync(map.from)) {
-      console.warn(`[skip] Missing source: ${map.from}`);
+  if (!fs.existsSync(webSrc)) {
+    console.error(`Web src not found: ${webSrc}`);
+    process.exit(1);
+  }
+  if (!fs.existsSync(electronSrc)) {
+    console.error(`Electron src not found: ${electronSrc}`);
+    process.exit(1);
+  }
+
+  const entries = fs.readdirSync(webSrc, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.name === "app") {
+      console.log(`[skip] Skipping 'app' folder`);
       continue;
     }
-    console.log(`[copy] ${map.from} -> ${map.to}`);
-    ensureDirSync(map.to);
-    copyDirFiltered(map.from, map.to, map.includes);
+    const srcPath = path.join(webSrc, entry.name);
+    const destPath = path.join(electronSrc, entry.name);
+    console.log(`[copy] ${srcPath} -> ${destPath}`);
+    if (entry.isDirectory()) {
+      copyDirRecursiveOverwrite(srcPath, destPath);
+    } else {
+      // top-level file
+      copyFileSync(srcPath, destPath);
+    }
   }
 
   console.log("Done. Review changes and run the app.");

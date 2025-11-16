@@ -1,86 +1,186 @@
-interface VideoEntry {
-  video: HTMLVideoElement;
-  ready: boolean;
-}
+import {
+  Input,
+  ALL_FORMATS,
+  BlobSource,
+  CanvasSink,
+  WrappedCanvas,
+} from "mediabunny";
 
+interface VideoSinkData {
+  sink: CanvasSink;
+  iterator: AsyncGenerator<WrappedCanvas, void, unknown> | null;
+  currentFrame: WrappedCanvas | null;
+  lastTime: number;
+}
 export class VideoCache {
-  private idToVideo: Map<string, VideoEntry> = new Map();
+  private sinks = new Map<string, VideoSinkData>();
+  private initPromises = new Map<string, Promise<void>>();
 
-  getOrCreateVideo(id: string, src: string): HTMLVideoElement {
-    const existing = this.idToVideo.get(id);
-    if (existing) return existing.video;
-    const video = document.createElement("video");
-    const isHttp = /^https?:\/\//i.test(src);
-    if (isHttp) {
-      video.crossOrigin = "anonymous";
+  async getFrameAt(
+    mediaId: string,
+    file: File,
+    time: number
+  ): Promise<WrappedCanvas | null> {
+    await this.ensureSink(mediaId, file);
+
+    const sinkData = this.sinks.get(mediaId);
+    if (!sinkData) return null;
+
+    if (
+      sinkData.currentFrame &&
+      this.isFrameValid(sinkData.currentFrame, time)
+    ) {
+      return sinkData.currentFrame;
     }
-    video.src = src.startsWith("file://") || isHttp ? src : `file://${src}`;
-    video.preload = "auto";
-    video.muted = true;
-    video.playsInline = true;
-    const entry: VideoEntry = { video, ready: false };
-    video.addEventListener("loadedmetadata", () => {
-      entry.ready = true;
-    });
-    this.idToVideo.set(id, entry);
-    return video;
+
+    if (
+      sinkData.iterator &&
+      sinkData.currentFrame &&
+      time >= sinkData.lastTime &&
+      time < sinkData.lastTime + 2.0
+    ) {
+      const frame = await this.iterateToTime(sinkData, time);
+      if (frame) return frame;
+    }
+
+    return await this.seekToTime(sinkData, time);
   }
 
-  async getFrameAt(id: string, src: string, time: number): Promise<HTMLCanvasElement | null> {
-    const video = this.getOrCreateVideo(id, src);
-    // Ensure metadata is ready
-    if (Number.isNaN(video.duration) || video.duration === Infinity) {
-      await new Promise<void>((resolve) => {
-        const onLoaded = () => {
-          video.removeEventListener("loadedmetadata", onLoaded);
-          resolve();
-        };
-        video.addEventListener("loadedmetadata", onLoaded);
-      });
-    }
+  private isFrameValid(frame: WrappedCanvas, time: number): boolean {
+    return time >= frame.timestamp && time < frame.timestamp + frame.duration;
+  }
+  private async iterateToTime(
+    sinkData: VideoSinkData,
+    targetTime: number
+  ): Promise<WrappedCanvas | null> {
+    if (!sinkData.iterator) return null;
 
-    const targetTime = Math.max(0, Math.min(video.duration || time, time));
-    if (Math.abs((video.currentTime || 0) - targetTime) > 0.01) {
-      await new Promise<void>((resolve, reject) => {
-        const onSeeked = () => {
-          cleanup();
-          resolve();
-        };
-        const onError = () => {
-          cleanup();
-          reject(new Error("Failed to seek video"));
-        };
-        const cleanup = () => {
-          video.removeEventListener("seeked", onSeeked);
-          video.removeEventListener("error", onError);
-        };
-        video.addEventListener("seeked", onSeeked);
-        video.addEventListener("error", onError);
-        try {
-          video.currentTime = targetTime;
-        } catch {
-          cleanup();
-          resolve(); // best-effort
-        }
-      }).catch(() => {});
-    }
-
-    const w = Math.max(1, video.videoWidth || 1);
-    const h = Math.max(1, video.videoHeight || 1);
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
     try {
-      ctx.drawImage(video, 0, 0, w, h);
-      return canvas;
-    } catch {
-      return null;
+      while (true) {
+        const { value: frame, done } = await sinkData.iterator.next();
+
+        if (done || !frame) break;
+
+        sinkData.currentFrame = frame;
+        sinkData.lastTime = frame.timestamp;
+
+        if (this.isFrameValid(frame, targetTime)) {
+          return frame;
+        }
+
+        if (frame.timestamp > targetTime + 1.0) break;
+      }
+    } catch (error) {
+      console.warn("Iterator failed, will restart:", error);
+      sinkData.iterator = null;
     }
+
+    return null;
+  }
+  private async seekToTime(
+    sinkData: VideoSinkData,
+    time: number
+  ): Promise<WrappedCanvas | null> {
+    try {
+      if (sinkData.iterator) {
+        await sinkData.iterator.return();
+        sinkData.iterator = null;
+      }
+
+      sinkData.iterator = sinkData.sink.canvases(time);
+      sinkData.lastTime = time;
+
+      const { value: frame } = await sinkData.iterator.next();
+
+      if (frame) {
+        sinkData.currentFrame = frame;
+        return frame;
+      }
+    } catch (error) {
+      console.warn("Failed to seek video:", error);
+    }
+
+    return null;
+  }
+  private async ensureSink(mediaId: string, file: File): Promise<void> {
+    if (this.sinks.has(mediaId)) return;
+
+    if (this.initPromises.has(mediaId)) {
+      await this.initPromises.get(mediaId);
+      return;
+    }
+
+    const initPromise = this.initializeSink(mediaId, file);
+    this.initPromises.set(mediaId, initPromise);
+
+    try {
+      await initPromise;
+    } finally {
+      this.initPromises.delete(mediaId);
+    }
+  }
+  private async initializeSink(mediaId: string, file: File): Promise<void> {
+    try {
+      const input = new Input({
+        source: new BlobSource(file),
+        formats: ALL_FORMATS,
+      });
+
+      const videoTrack = await input.getPrimaryVideoTrack();
+      if (!videoTrack) {
+        throw new Error("No video track found");
+      }
+
+      const canDecode = await videoTrack.canDecode();
+      if (!canDecode) {
+        throw new Error("Video codec not supported for decoding");
+      }
+
+      const sink = new CanvasSink(videoTrack, {
+        poolSize: 3,
+        fit: "contain",
+      });
+
+      this.sinks.set(mediaId, {
+        sink,
+        iterator: null,
+        currentFrame: null,
+        lastTime: -1,
+      });
+    } catch (error) {
+      console.error(`Failed to initialize video sink for ${mediaId}:`, error);
+      throw error;
+    }
+  }
+
+  clearVideo(mediaId: string): void {
+    const sinkData = this.sinks.get(mediaId);
+    if (sinkData) {
+      if (sinkData.iterator) {
+        sinkData.iterator.return();
+      }
+
+      this.sinks.delete(mediaId);
+    }
+
+    this.initPromises.delete(mediaId);
+  }
+
+  clearAll(): void {
+    for (const [mediaId] of this.sinks) {
+      this.clearVideo(mediaId);
+    }
+  }
+
+  getStats() {
+    return {
+      totalSinks: this.sinks.size,
+      activeSinks: Array.from(this.sinks.values()).filter((s) => s.iterator)
+        .length,
+      cachedFrames: Array.from(this.sinks.values()).filter(
+        (s) => s.currentFrame
+      ).length,
+    };
   }
 }
-
 export const videoCache = new VideoCache();
-
-

@@ -1,8 +1,12 @@
-"use client";
+
 
 import { cn } from "@/lib/utils";
 import { Tab, tabs, useMediaPanelStore } from "./store";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useEffect, useRef, useState } from "react";
 
 export function TabBar() {
@@ -37,18 +41,20 @@ export function TabBar() {
   }, []);
 
   return (
-    <div className="relative flex">
+    <div className="flex relative">
       <div
         ref={scrollRef}
-        className="scrollbar-hidden relative flex h-full w-full flex-col items-center justify-start gap-5 overflow-y-auto px-4 py-4"
+        className="h-full px-4 flex flex-col justify-start items-center gap-5 overflow-y-auto scrollbar-hidden relative w-full py-4"
       >
         {(Object.keys(tabs) as Tab[]).map((tabKey) => {
           const tab = tabs[tabKey];
           return (
             <div
               className={cn(
-                "z-[100] flex cursor-pointer flex-col items-center gap-0.5",
-                activeTab === tabKey ? "text-primary !opacity-100" : "text-muted-foreground"
+                "flex z-[100] flex-col gap-0.5 items-center cursor-pointer",
+                activeTab === tabKey
+                  ? "text-primary !opacity-100"
+                  : "text-muted-foreground"
               )}
               onClick={() => setActiveTab(tabKey)}
               key={tabKey}
@@ -57,8 +63,13 @@ export function TabBar() {
                 <TooltipTrigger asChild>
                   <tab.icon className="size-[1.1rem]! opacity-100 hover:opacity-75" />
                 </TooltipTrigger>
-                <TooltipContent side="right" align="center" sideOffset={8}>
-                  <div className="dark:text-base-gray-950 text-sm font-medium leading-none text-black dark:text-white">
+                <TooltipContent
+                  side="right"
+                  align="center"
+                  variant="sidebar"
+                  sideOffset={8}
+                >
+                  <div className="dark:text-base-gray-950 text-black text-sm font-medium leading-none dark:text-white">
                     {tab.label}
                   </div>
                 </TooltipContent>
@@ -74,14 +85,14 @@ export function TabBar() {
   );
 }
 
-function FadeOverlay({ direction, show }: { direction: "top" | "bottom"; show: boolean }) {
+function FadeOverlay({ direction, show }: { direction: "top" | "bottom", show: boolean }) {
   return (
     <div
       className={cn(
-        "pointer-events-none absolute left-0 right-0 z-[101] h-6 transition-opacity duration-200",
+        "absolute left-0 right-0 h-6 pointer-events-none z-[101] transition-opacity duration-200",
         direction === "top" && show
-          ? "from-panel top-0 bg-gradient-to-b to-transparent"
-          : "from-panel bottom-0 bg-gradient-to-t to-transparent"
+          ? "top-0 bg-gradient-to-b from-panel to-transparent"
+          : "bottom-0 bg-gradient-to-t from-panel to-transparent"
       )}
     />
   );

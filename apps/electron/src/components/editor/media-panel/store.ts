@@ -80,6 +80,7 @@ export const useMediaPanelStore = create<MediaPanelStore>((set) => ({
   activeTab: "media",
   setActiveTab: (tab) => set({ activeTab: tab }),
   highlightMediaId: null,
-  requestRevealMedia: (mediaId) => set({ activeTab: "media", highlightMediaId: mediaId }),
+  requestRevealMedia: (mediaId) =>
+    set({ activeTab: "media", highlightMediaId: mediaId }),
   clearHighlight: () => set({ highlightMediaId: null }),
 }));
