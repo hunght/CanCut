@@ -1,5 +1,16 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
+/**
+ * Copy Web Editor Files to Electron
+ *
+ * This script copies files from apps/web/src to apps/electron/src,
+ * overwriting existing files.
+ *
+ * IMPORTANT: After running this script, you MUST follow the migration steps
+ * in MIGRATION.md to fix Next.js dependencies and other incompatibilities.
+ *
+ * See: apps/electron/MIGRATION.md for complete migration instructions.
+ */
 const fs = require("fs");
 const path = require("path");
 
@@ -100,6 +111,9 @@ function main() {
   }
 
   console.log("Done. Review changes and run the app.");
+  console.log("\n⚠️  IMPORTANT: Follow the migration steps in MIGRATION.md");
+  console.log("   to fix Next.js dependencies and other incompatibilities.");
+  console.log("   Location: apps/electron/MIGRATION.md\n");
 }
 
 main();
