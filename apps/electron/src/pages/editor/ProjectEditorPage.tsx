@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useParams } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "@tanstack/react-router";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { MediaPanel } from "@/components/editor/media-panel";
 import { PropertiesPanel } from "@/components/editor/properties-panel";
@@ -9,11 +9,14 @@ import { EditorHeader } from "@/components/editor/editor-header";
 import { usePanelStore } from "@/stores/panel-store";
 import { useProjectStore } from "@/stores/project-store";
 import { useTimelineStore } from "@/stores/timeline-store";
+import { Button } from "@/components/ui/button";
 
 export default function ProjectEditorPage() {
   const { projectId } = useParams({ from: "/editor/$projectId" });
+  const router = useRouter();
   const { activeProject, loadProject } = useProjectStore();
   const { loadProjectTimeline } = useTimelineStore();
+  const [error, setError] = useState<string | null>(null);
 
   const {
     toolsPanel,
@@ -32,16 +35,38 @@ export default function ProjectEditorPage() {
 
   useEffect(() => {
     let mounted = true;
+    setError(null);
     (async () => {
-      await loadProject(projectId);
-      if (!mounted) return;
-      const sceneId = useProjectStore.getState().activeProject?.currentSceneId;
-      await loadProjectTimeline(projectId, sceneId);
+      try {
+        await loadProject(projectId);
+        if (!mounted) return;
+        const sceneId = useProjectStore.getState().activeProject?.currentSceneId;
+        await loadProjectTimeline({ projectId, sceneId });
+      } catch (err) {
+        if (!mounted) return;
+        const errorMessage = err instanceof Error ? err.message : "Failed to load project";
+        setError(errorMessage);
+        console.error("Failed to load project:", err);
+      }
     })();
     return () => {
       mounted = false;
     };
   }, [projectId, loadProject, loadProjectTimeline]);
+
+  if (error) {
+    return (
+      <div className="flex h-full w-full items-center justify-center flex-col gap-4">
+        <p className="text-destructive">{error}</p>
+        <Button
+          onClick={() => router.navigate({ to: "/projects" })}
+          variant="default"
+        >
+          Go to Projects
+        </Button>
+      </div>
+    );
+  }
 
   if (!activeProject) {
     return (

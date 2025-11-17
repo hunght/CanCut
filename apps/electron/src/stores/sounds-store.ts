@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { SoundEffect, SavedSound } from "@/types/sounds";
-import { storageService } from "@/lib/storage/storage-service";
+import { editorStorage } from "@/services/editor-storage";
 import { toast } from "sonner";
 import { useMediaStore } from "./media-store";
 import { useTimelineStore } from "./timeline-store";
@@ -143,7 +143,7 @@ export const useSoundsStore = create<SoundsStore>((set, get) => ({
 
     try {
       set({ isLoadingSavedSounds: true, savedSoundsError: null });
-      const savedSoundsData = await storageService.loadSavedSounds();
+      const savedSoundsData = await editorStorage.loadSavedSounds();
       set({
         savedSounds: savedSoundsData.sounds,
         isSavedSoundsLoaded: true,
@@ -162,10 +162,10 @@ export const useSoundsStore = create<SoundsStore>((set, get) => ({
 
   saveSoundEffect: async (soundEffect: SoundEffect) => {
     try {
-      await storageService.saveSoundEffect({ soundEffect });
+      await editorStorage.saveSoundEffect({ soundEffect });
 
       // Refresh saved sounds
-      const savedSoundsData = await storageService.loadSavedSounds();
+      const savedSoundsData = await editorStorage.loadSavedSounds();
       set({ savedSounds: savedSoundsData.sounds });
     } catch (error) {
       const errorMessage =
@@ -178,7 +178,7 @@ export const useSoundsStore = create<SoundsStore>((set, get) => ({
 
   removeSavedSound: async (soundId: number) => {
     try {
-      await storageService.removeSavedSound({ soundId });
+      await editorStorage.removeSavedSound({ soundId });
 
       // Update local state immediately
       set((state) => ({
@@ -210,7 +210,7 @@ export const useSoundsStore = create<SoundsStore>((set, get) => ({
 
   clearSavedSounds: async () => {
     try {
-      await storageService.clearSavedSounds();
+      await editorStorage.clearSavedSounds();
       set({
         savedSounds: [],
         savedSoundsError: null,

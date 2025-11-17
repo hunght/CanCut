@@ -18,4 +18,40 @@ const IndexRoute = createRoute({
   ),
 });
 
-export const rootTree = RootRoute.addChildren([IndexRoute, ProjectEditorRoute]);
+const ProjectsRoute = createRoute({
+  getParentRoute: () => RootRoute,
+  path: "/projects",
+  component: () => (
+    <div className="flex h-full items-center justify-center text-muted-foreground">
+      Select a project from the sidebar or create a new one
+    </div>
+  ),
+});
+
+const BlogRoute = createRoute({
+  getParentRoute: () => RootRoute,
+  path: "/blog",
+  component: () => (
+    <div className="flex h-full items-center justify-center text-muted-foreground">
+      Blog
+    </div>
+  ),
+});
+
+const ContributorsRoute = createRoute({
+  getParentRoute: () => RootRoute,
+  path: "/contributors",
+  component: () => (
+    <div className="flex h-full items-center justify-center text-muted-foreground">
+      Contributors
+    </div>
+  ),
+});
+
+export const rootTree = RootRoute.addChildren([
+  IndexRoute,
+  ProjectEditorRoute,
+  ProjectsRoute,
+  BlogRoute,
+  ContributorsRoute,
+]);

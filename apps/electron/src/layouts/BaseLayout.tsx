@@ -12,7 +12,7 @@ export default function BaseLayout({ children }: { children: React.ReactNode }):
     <SidebarProvider>
       <div className="flex h-screen flex-col">
         {/* Drag region for frameless window */}
-        <DragWindowRegion title="LearnifyTube" />
+        <DragWindowRegion title="CanCut" />
 
         <div className="flex flex-1 overflow-hidden">
           <AppSidebar />

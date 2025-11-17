@@ -65,9 +65,9 @@ export const EXTERNAL_DEPENDENCIES = [
 // Base packager configuration
 const packagerConfig: ForgePackagerOptions = {
   // The name of the executable
-  executableName: "LearnifyTube",
+  executableName: "CanCut",
   // The name of the application
-  name: "LearnifyTube",
+  name: "CanCut",
   // Path to the application icon
   icon: process.platform === "win32" ? "./resources/icon.ico" : "./resources/icon",
   // The bundle ID for the application
@@ -75,8 +75,8 @@ const packagerConfig: ForgePackagerOptions = {
   // Define custom protocols for the application
   protocols: [
     {
-      name: "LearnifyTube",
-      schemes: ["learnifytube"],
+      name: "CanCut",
+      schemes: ["cancut"],
     },
   ],
   // Include additional resources in the final build
@@ -88,7 +88,7 @@ if (process.platform === "darwin") {
   // Add Info.plist keys for Apple Events usage
   packagerConfig.extendInfo = {
     NSAppleEventsUsageDescription:
-      "LearnifyTube needs access to browser applications to provide enhanced functionality for managing and downloading YouTube content.",
+      "CanCut needs access to browser applications to provide enhanced functionality for video editing.",
     // Additional Info.plist keys for better permission handling
     NSAppleScriptEnabled: true,
     OSAScriptingDefinition: "com.learnifytube.app.sdef",
@@ -305,35 +305,35 @@ const config: ForgeConfig = {
       setupIcon: path.resolve(__dirname, "resources", "icon.ico"),
       iconUrl: "https://raw.githubusercontent.com/hunght/LearnifyTube/main/resources/icon.ico",
       loadingGif: path.resolve(__dirname, "resources", "icon_64x64.png"),
-      // Naming pattern: LearnifyTube-{version}.Setup.exe
-      name: "LearnifyTube-${version}.Setup.exe",
+      // Naming pattern: CanCut-{version}.Setup.exe
+      name: "CanCut-${version}.Setup.exe",
     }),
     new MakerDMG({
       icon: path.resolve(__dirname, "resources", "icon.icns"),
       format: "ULFO", // Use a different format that works better with permissions
       overwrite: true,
-      // Default naming pattern: LearnifyTube-{version}-{arch}.dmg
+      // Default naming pattern: CanCut-{version}-{arch}.dmg
     }),
     new MakerZIP({
       // Generate ZIP files for auto-updates
-      // Default naming pattern: LearnifyTube-{platform}-{arch}-{version}.zip
+      // Default naming pattern: CanCut-{platform}-{arch}-{version}.zip
       // Examples:
-      // - LearnifyTube-darwin-arm64-1.0.234.zip (macOS ARM)
-      // - LearnifyTube-darwin-x64-1.0.234.zip (macOS Intel)
-      // - LearnifyTube-win32-x64-1.0.234.zip (Windows)
-      // - LearnifyTube-linux-x64-1.0.234.zip (Linux)
+      // - CanCut-darwin-arm64-1.0.234.zip (macOS ARM)
+      // - CanCut-darwin-x64-1.0.234.zip (macOS Intel)
+      // - CanCut-win32-x64-1.0.234.zip (Windows)
+      // - CanCut-linux-x64-1.0.234.zip (Linux)
     }),
     new MakerRpm({
       options: {
-        bin: "LearnifyTube",
+        bin: "CanCut",
       },
-      // Default naming pattern: LearnifyTube-{version}-1.x86_64.rpm
+      // Default naming pattern: CanCut-{version}-1.x86_64.rpm
     }),
     new MakerDeb({
       options: {
-        bin: "LearnifyTube",
+        bin: "CanCut",
       },
-      // Default naming pattern: LearnifyTube_{version}_amd64.deb
+      // Default naming pattern: CanCut_{version}_amd64.deb
     }),
   ],
   // Publishers for different platforms

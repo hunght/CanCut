@@ -36,7 +36,6 @@ import {
 } from "@/lib/iconify-api";
 import { cn } from "@/lib/utils";
 import { TIMELINE_CONSTANTS } from "@/constants/timeline-constants";
-import Image from "next/image";
 import type { MediaFile } from "@/types/media";
 import { DraggableMediaItem } from "@/components/ui/draggable-item";
 import { InputWithBack } from "@/components/ui/input-with-back";
@@ -532,7 +531,7 @@ function StickerItem({
     </div>
   ) : (
     <div className="w-full h-full p-4 flex items-center justify-center">
-      <Image
+      <img
         src={
           hostIndex === 0
             ? getIconSvgUrl(iconName, { width: 64, height: 64 })
@@ -563,7 +562,6 @@ function StickerItem({
           }
         }}
         loading="lazy"
-        unoptimized
       />
     </div>
   );

@@ -1,4 +1,6 @@
 import { trpcClient } from "@/utils/trpc";
+import { MediaFile } from "@/types/media";
+import { TimelineTrack } from "@/types/timeline";
 
 export type CanvasSize = { width: number; height: number };
 export type Scene = { id: string; name: string; isMain: boolean; createdAt: Date; updatedAt: Date };
@@ -107,6 +109,76 @@ export const editorStorage = {
   }): Promise<string | null> {
     const t = await trpcClient.editor.timeline.load.query({ projectId, sceneId });
     return t?.tracksJson ?? null;
+  },
+
+  // Media methods - Note: actual file storage is handled via file system in Electron
+  // These methods only manage metadata in SQLite
+  async addMedia({
+    projectId,
+    id,
+    name,
+    type,
+    filePath,
+    width,
+    height,
+    duration,
+    size,
+    ephemeral,
+  }: {
+    projectId: string;
+    id?: string;
+    name: string;
+    type: string;
+    filePath: string;
+    width?: number;
+    height?: number;
+    duration?: number;
+    size?: number;
+    ephemeral?: boolean;
+  }): Promise<string> {
+    const result = await trpcClient.editor.media.add.mutate({
+      projectId,
+      id,
+      name,
+      type,
+      filePath,
+      width,
+      height,
+      duration,
+      size,
+      ephemeral,
+    });
+    return result.id;
+  },
+
+  async listMediaForProject({ projectId }: { projectId: string }) {
+    return await trpcClient.editor.media.listForProject.query({ projectId });
+  },
+
+  async removeMedia({ id }: { id: string }): Promise<void> {
+    await trpcClient.editor.media.remove.mutate({ id });
+  },
+
+  async removeAllMediaForProject({ projectId }: { projectId: string }): Promise<void> {
+    await trpcClient.editor.media.removeAllForProject.mutate({ projectId });
+  },
+
+  // Saved sounds methods - TODO: Implement tRPC router for saved sounds
+  // For now, these throw errors to indicate they need implementation
+  async loadSavedSounds(): Promise<{ sounds: any[]; lastModified: string }> {
+    throw new Error("Saved sounds not yet migrated to SQLite. Please implement tRPC router.");
+  },
+
+  async saveSoundEffect({ soundEffect }: { soundEffect: any }): Promise<void> {
+    throw new Error("Saved sounds not yet migrated to SQLite. Please implement tRPC router.");
+  },
+
+  async removeSavedSound({ soundId }: { soundId: number }): Promise<void> {
+    throw new Error("Saved sounds not yet migrated to SQLite. Please implement tRPC router.");
+  },
+
+  async clearSavedSounds(): Promise<void> {
+    throw new Error("Saved sounds not yet migrated to SQLite. Please implement tRPC router.");
   },
 };
 

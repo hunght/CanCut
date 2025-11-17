@@ -26,7 +26,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-APP_NAME="LearnifyTube"
+APP_NAME="CanCut"
 
 echo -e "${BLUE}🔍 Looking for running processes...${NC}"
 

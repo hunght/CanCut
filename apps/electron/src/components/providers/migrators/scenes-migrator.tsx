@@ -1,8 +1,8 @@
 
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
-import { storageService } from "@/lib/storage/storage-service";
+import { useLocation } from "@tanstack/react-router";
+import { editorStorage } from "@/services/editor-storage";
 import { TProject, Scene } from "@/types/project";
 import { generateUUID } from "@/lib/utils";
 import {
@@ -22,7 +22,8 @@ interface MigrationProgress {
 }
 
 export function ScenesMigrator({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const location = useLocation();
+  const pathname = location.pathname;
   const [isMigrating, setIsMigrating] = useState(false);
   const [progress, setProgress] = useState<MigrationProgress>({
     current: 0,
@@ -41,7 +42,7 @@ export function ScenesMigrator({ children }: { children: React.ReactNode }) {
 
   const checkAndMigrateProjects = async () => {
     try {
-      const projects = await storageService.loadAllProjects();
+      const projects = await editorStorage.loadAllProjects();
       const legacyProjects = projects.filter(
         (project) => !project.scenes || project.scenes.length === 0
       );
@@ -104,23 +105,23 @@ export function ScenesMigrator({ children }: { children: React.ReactNode }) {
       };
 
       // Load existing timeline data (legacy format)
-      const legacyTimeline = await storageService.loadTimeline({
+      const legacyTimelineJson = await editorStorage.loadTimeline({
         projectId: project.id,
       });
+      const legacyTimeline = legacyTimelineJson ? JSON.parse(legacyTimelineJson) : null;
 
-      await storageService.saveProject({ project: migratedProject });
+      await editorStorage.saveProject({ project: migratedProject });
 
       // If timeline data, migrate it to the main scene
       if (legacyTimeline && legacyTimeline.length > 0) {
-        await storageService.saveTimeline({
+        await editorStorage.saveTimeline({
           projectId: project.id,
-          tracks: legacyTimeline,
+          tracksJson: JSON.stringify(legacyTimeline),
           sceneId: mainScene.id,
         });
       }
 
-      // Clean up legacy timeline storage
-      await storageService.deleteProjectTimeline({ projectId: project.id });
+      // Note: Timeline deletion is handled by deleteProject in editorStorage
     } catch (error) {
       console.error(`Failed to migrate project ${project.name}:`, error);
       throw error;

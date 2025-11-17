@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { Scene } from "@/types/project";
 import { useProjectStore } from "./project-store";
 import { useTimelineStore } from "./timeline-store";
-import { storageService } from "@/lib/storage/storage-service";
+import { editorStorage } from "@/services/editor-storage";
 import { generateUUID } from "@/lib/utils";
 
 export function getMainScene({ scenes }: { scenes: Scene[] }): Scene | null {
@@ -94,7 +94,7 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
     };
 
     try {
-      await storageService.saveProject({ project: updatedProject });
+      await editorStorage.saveProject({ project: updatedProject });
       useProjectStore.setState({ activeProject: updatedProject });
       set({ scenes: updatedScenes });
       return newScene.id;
@@ -139,7 +139,7 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
     };
 
     try {
-      await storageService.saveProject({ project: updatedProject });
+      await editorStorage.saveProject({ project: updatedProject });
       useProjectStore.setState({ activeProject: updatedProject });
       set({
         scenes: updatedScenes,
@@ -181,7 +181,7 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
     };
 
     try {
-      await storageService.saveProject({ project: updatedProject });
+      await editorStorage.saveProject({ project: updatedProject });
       useProjectStore.setState({ activeProject: updatedProject });
       set({
         scenes: updatedScenes,
@@ -225,7 +225,7 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
         updatedAt: new Date(),
       };
 
-      await storageService.saveProject({ project: updatedProject });
+      await editorStorage.saveProject({ project: updatedProject });
       useProjectStore.setState({ activeProject: updatedProject });
     }
 
@@ -243,7 +243,7 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
 
   loadProjectScenes: async ({ projectId }: { projectId: string }) => {
     try {
-      const project = await storageService.loadProject({ id: projectId });
+      const project = await editorStorage.loadProject({ id: projectId });
       if (project?.scenes) {
         const ensuredScenes = project.scenes.map((scene) => ({
           ...scene,
@@ -294,7 +294,7 @@ export const useSceneStore = create<SceneStore>((set, get) => ({
           updatedAt: new Date(),
         };
 
-        storageService
+        editorStorage
           .saveProject({ project: updatedProject })
           .then(() => {
             useProjectStore.setState({ activeProject: updatedProject });

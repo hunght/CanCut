@@ -1,17 +1,15 @@
 
 
 import { useEditorStore } from "@/stores/editor-store";
-import Image from "next/image";
 
 function TikTokGuide() {
   return (
     <div className="absolute inset-0 pointer-events-none">
-      <Image
+      <img
         src="/platform-guides/tiktok-blueprint.png"
         alt="TikTok layout guide"
         className="absolute inset-0 w-full h-full object-contain"
         draggable={false}
-        fill
       />
     </div>
   );

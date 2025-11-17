@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@tanstack/react-router";
 import { signIn } from "@opencut/auth/client";
 
 export function useLogin() {
@@ -25,7 +25,7 @@ export function useLogin() {
       return;
     }
 
-    router.push("/projects");
+    router.navigate({ to: "/projects" });
   }, [router, email, password]);
 
   const handleGoogleLogin = async () => {

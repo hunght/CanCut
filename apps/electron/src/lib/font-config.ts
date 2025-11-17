@@ -1,39 +1,25 @@
-import {
-  Inter,
-  Roboto,
-  Open_Sans,
-  Playfair_Display,
-  Comic_Neue,
-} from "next/font/google";
-
-// Configure all fonts
-const inter = Inter({ subsets: ["latin"] });
-const roboto = Roboto({ subsets: ["latin"], weight: ["400", "700"] });
-const openSans = Open_Sans({ subsets: ["latin"] });
-const playfairDisplay = Playfair_Display({ subsets: ["latin"] });
-const comicNeue = Comic_Neue({ subsets: ["latin"], weight: ["400", "700"] });
-
-// Export font class mapping for use in components
+// Font class names matching Google Fonts families
+// These fonts are loaded via CSS imports in global.css
 export const FONT_CLASS_MAP = {
-  Inter: inter.className,
-  Roboto: roboto.className,
-  "Open Sans": openSans.className,
-  "Playfair Display": playfairDisplay.className,
-  "Comic Neue": comicNeue.className,
+  Inter: "font-inter",
+  Roboto: "font-roboto",
+  "Open Sans": "font-open-sans",
+  "Playfair Display": "font-playfair-display",
+  "Comic Neue": "font-comic-neue",
   Arial: "",
   Helvetica: "",
   "Times New Roman": "",
   Georgia: "",
 } as const;
 
-// Export individual fonts for use in layout
+// Font configuration objects for compatibility
 export const fonts = {
-  inter,
-  roboto,
-  openSans,
-  playfairDisplay,
-  comicNeue,
+  inter: { className: "font-inter" },
+  roboto: { className: "font-roboto" },
+  openSans: { className: "font-open-sans" },
+  playfairDisplay: { className: "font-playfair-display" },
+  comicNeue: { className: "font-comic-neue" },
 };
 
 // Default font for the body
-export const defaultFont = inter;
+export const defaultFont = fonts.inter;

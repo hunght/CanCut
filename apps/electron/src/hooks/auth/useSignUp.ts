@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@tanstack/react-router";
 import { signUp, signIn } from "@opencut/auth/client";
 
 export function useSignUp() {
@@ -27,7 +27,7 @@ export function useSignUp() {
       return;
     }
 
-    router.push("/login");
+    router.navigate({ to: "/login" });
   }, [name, email, password, router]);
 
   const handleGoogleSignUp = useCallback(async () => {
@@ -39,7 +39,7 @@ export function useSignUp() {
         provider: "google",
       });
 
-      router.push("/editor");
+      router.navigate({ to: "/editor" });
     } catch (error) {
       setError("Failed to sign up with Google. Please try again.");
       setIsGoogleLoading(false);

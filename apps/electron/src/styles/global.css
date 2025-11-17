@@ -1,396 +1,246 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  @font-face {
-    font-family: "Geist";
-    font-weight: 100;
+:root {
+  /* Custom colors - light mode (default) */
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(0 0% 11%);
+  --card: hsl(216, 8%, 86%);
+  --card-foreground: hsl(0 0% 2%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0 0% 2%);
+  --primary: hsl(205, 84%, 47%);
+  --primary-foreground: hsl(0 0% 91%);
+  --secondary: hsl(216, 13%, 92%);
+  --secondary-foreground: hsl(0 0% 2%);
+  --muted: hsl(0 0% 85.1%);
+  --muted-foreground: hsl(0 0% 50%);
+  --accent: hsl(216, 13%, 92%);
+  --accent-foreground: hsl(0 0% 2%);
+  --destructive: hsl(0, 83%, 50%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(0 0% 83%);
+  --input: hsl(0 0% 85.1%);
+  --ring: hsl(0, 0%, 55%);
+  --chart-1: hsl(220 70% 50%);
+  --chart-2: hsl(160 60% 45%);
+  --chart-3: hsl(30 80% 55%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(340 75% 55%);
+  --sidebar-background: hsl(0 0% 96.1%);
+  --sidebar-foreground: hsl(0 0% 2%);
+  --sidebar-primary: hsl(0 0% 2%);
+  --sidebar-primary-foreground: hsl(0 0% 91%);
+  --sidebar-accent: hsl(0 0% 85.1%);
+  --sidebar-accent-foreground: hsl(0 0% 2%);
+  --sidebar-border: hsl(0 0% 85.1%);
+  --sidebar-ring: hsl(0 0% 16.9%);
+  --panel-background: hsl(216 13% 92%);
+  --panel-accent: hsl(216, 8%, 86%);
 
-    src: url("../assets/fonts/geist/Geist-Thin.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: "Geist";
-    font-weight: 200;
-
-    src: url("../assets/fonts/geist/Geist-UltraLight.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: "Geist";
-    font-weight: 300;
-
-    src: url("../assets/fonts/geist/Geist-Light.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: "Geist";
-    font-weight: 400;
-    font-style: normal;
-
-    src: url("../assets/fonts/geist/Geist-Regular.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: "Geist";
-    font-weight: 600;
-
-    src: url("../assets/fonts/geist/Geist-SemiBold.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: "Geist";
-    font-weight: 700;
-
-    src: url("../assets/fonts/geist/Geist-Bold.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: "Geist";
-    font-weight: 800;
-
-    src: url("../assets/fonts/geist/Geist-Black.woff2") format("woff2");
-  }
-  @font-face {
-    font-family: "Geist";
-    font-weight: 900;
-
-    src: url("../assets/fonts/geist/Geist-UltraBlack.woff2") format("woff2");
-  }
-  :root {
-    /* LearnifyTube Light Mode - Sidebar */
-    --sidebar-background: 210 20% 98%; /* Gray 50 */
-    --sidebar-foreground: 217 19% 27%; /* Gray 700 */
-    --sidebar-primary: 217.2 91.2% 59.8%; /* Primary Blue */
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 96%; /* Gray 100 */
-    --sidebar-accent-foreground: 217 19% 27%;
-    --sidebar-border: 220 13% 91%; /* Gray 200 */
-    --sidebar-ring: 217.2 91.2% 59.8%; /* Primary Blue */
-  }
-  .dark {
-    /* LearnifyTube Dark Mode - Sidebar */
-    --sidebar-background: 220 26% 12%; /* Gray 900 */
-    --sidebar-foreground: 210 20% 98%; /* Gray 50 */
-    --sidebar-primary: 217.2 91.2% 59.8%; /* Primary Blue */
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 19% 17%; /* Gray 800 */
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 217 19% 27%; /* Gray 700 */
-    --sidebar-ring: 217.2 91.2% 59.8%; /* Primary Blue */
-  }
+  /* Radius base */
+  --radius: 1rem;
+}
+.dark {
+  /* Custom colors - dark mode */
+  --background: hsl(0 0% 4%);
+  --foreground: hsl(0 0% 89%);
+  --card: hsl(0 0% 14.9%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(0 0% 14.9%);
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: hsl(205, 84%, 53%);
+  --primary-foreground: hsl(0 0% 9%);
+  --secondary: hsl(0 0% 14.9%);
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: hsl(0 0% 14.9%);
+  --muted-foreground: hsl(0 0% 63.9%);
+  --accent: hsl(0 0% 14.9%);
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 100% 60%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(0 0% 17%);
+  --input: hsl(0 0% 14.9%);
+  --ring: hsl(0 0% 83.1%);
+  --chart-1: hsl(220 70% 50%);
+  --chart-2: hsl(160 60% 45%);
+  --chart-3: hsl(30 80% 55%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(340 75% 55%);
+  --sidebar-background: hsl(0 0% 3.9%);
+  --sidebar-foreground: hsl(0 0% 98%);
+  --sidebar-primary: hsl(0 0% 98%);
+  --sidebar-primary-foreground: hsl(0 0% 9%);
+  --sidebar-accent: hsl(0 0% 14.9%);
+  --sidebar-accent-foreground: hsl(0 0% 98%);
+  --sidebar-border: hsl(0 0% 14.9%);
+  --sidebar-ring: hsl(0 0% 83.1%);
+  --panel-background: hsl(0 0% 11%);
+  --panel-accent: hsl(0 0% 15%);
 }
 
 @layer base {
-  :root {
-    /* LearnifyTube Light Mode Colors */
-    --background: 0 0% 100%; /* White */
-    --foreground: 217 19% 27%; /* Gray 700 */
+  /*
+    The default border color has changed to `currentcolor` in Tailwind CSS v4,
+    so we've added these compatibility styles to make sure everything still
+    looks the same as it did with Tailwind CSS v3.
 
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 217 19% 27%; /* Gray 700 */
-
-    --popover: 0 0% 100%; /* White */
-    --popover-foreground: 217 19% 27%; /* Gray 700 */
-
-    --primary: 217.2 91.2% 59.8%; /* Primary Blue #3B82F6 */
-    --primary-foreground: 0 0% 100%; /* White */
-
-    --secondary: 220 14% 96%; /* Gray 100 */
-    --secondary-foreground: 217 19% 27%; /* Gray 700 */
-
-    --muted: 220 14% 96%; /* Gray 100 */
-    --muted-foreground: 220 9% 46%; /* Gray 500 */
-
-    --accent: 160 84% 39.4%; /* Accent Green #10B981 */
-    --accent-foreground: 0 0% 100%; /* White */
-
-    --success: 160 84% 39.4%; /* Accent Green #10B981 */
-    --success-foreground: 0 0% 100%;
-
-    --warning: 38 92% 50%; /* Warning Orange #F59E0B */
-    --warning-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%; /* Error Red #EF4444 */
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 13% 91%; /* Gray 200 */
-    --input: 220 13% 91%; /* Gray 200 */
-    --ring: 217.2 91.2% 59.8%; /* Primary Blue */
-
-    --radius: 0.5rem; /* 8px - matches brand guidelines */
-
-    /* LearnifyTube Brand Specific */
-    --brand-blue: 217.2 91.2% 59.8%;
-    --brand-green: 160 84% 39.4%;
+    If we ever want to remove these styles, we need to add an explicit border
+    color utility to any element that depends on these defaults.
+  */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
   }
-
-  .dark {
-    /* LearnifyTube Dark Mode Colors */
-    --background: 220 26% 12%; /* Gray 900 #111827 */
-    --foreground: 210 20% 98%; /* Gray 50 #F9FAFB */
-
-    --card: 217 19% 17%; /* Gray 800 #1F2937 */
-    --card-foreground: 210 20% 98%; /* Gray 50 */
-
-    --popover: 217 19% 17%; /* Gray 800 */
-    --popover-foreground: 210 20% 98%; /* Gray 50 */
-
-    --primary: 217.2 91.2% 59.8%; /* Primary Blue - same in dark mode */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 217 19% 27%; /* Gray 700 */
-    --secondary-foreground: 210 20% 98%; /* Gray 50 */
-
-    --muted: 217 19% 27%; /* Gray 700 */
-    --muted-foreground: 218 11% 65%; /* Gray 400 */
-
-    --accent: 160 84% 39.4%; /* Accent Green - same in dark mode */
-    --accent-foreground: 0 0% 100%;
-
-    --success: 160 84% 39.4%; /* Accent Green */
-    --success-foreground: 0 0% 100%;
-
-    --warning: 38 92% 50%; /* Warning Orange */
-    --warning-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%; /* Error Red */
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 217 19% 27%; /* Gray 700 */
-    --input: 217 19% 27%; /* Gray 700 */
-    --ring: 217.2 91.2% 59.8%; /* Primary Blue */
-
-    /* Brand colors remain same in dark mode */
-    --brand-blue: 217.2 91.2% 59.8%;
-    --brand-green: 160 84% 39.4%;
-  }
-}
-
-@layer base {
-  * {
-    @apply m-0 border-border p-0 font-sans;
-  }
-  body {
-    @apply overflow-hidden bg-background text-foreground;
-  }
-  .draglayer {
-    @apply bg-background;
-    -webkit-app-region: drag;
-  }
-
-  /* Ensure buttons and interactive elements in drag region are clickable */
-  .draglayer button,
-  .draglayer input,
-  .draglayer select,
-  .draglayer a {
-    -webkit-app-region: no-drag;
-  }
-}
-
-@layer base {
+  /* Other default base styles */
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    /* Prevent back/forward swipe */
+    overscroll-behavior-x: contain;
   }
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+@theme inline {
+  /* Responsive breakpoints */
+  --breakpoint-xs: 30rem;
+
+  /* Typography */
+  --font-sans: var(--font-inter), sans-serif;
+
+  /* Font sizes */
+  --text-base: 0.95rem;
+  --text-base--line-height: calc(1.5 / 0.95);
+  --text-xs: 0.8rem;
+  --text-xs--line-height: calc(1 / 0.8);
+
+  /* Border radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 8px);
+
+  /* Palette mapped to root design tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Chart colors */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Panel */
+  --color-panel: var(--panel-background);
+  --color-panel-accent: var(--panel-accent);
+
+  /* Animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
   }
-  body {
-    @apply bg-background text-foreground;
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
   }
 }
 
-/* Custom Scrollbar Styles - Light and Dark Mode */
-@layer utilities {
-  /* Scrollbar for Webkit browsers (Chrome, Safari, Edge) */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+@utility scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
+}
 
-  *::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+@utility scrollbar-x-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar:horizontal {
+    display: none;
   }
+}
 
-  *::-webkit-scrollbar-track {
+@utility scrollbar-y-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar:vertical {
+    display: none;
+  }
+}
+
+@utility scrollbar-thin {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-track {
     background: transparent;
-    border-radius: 5px;
   }
-
-  *::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.3);
-    border-radius: 5px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
+  &::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
   }
-
-  *::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.5);
-    background-clip: padding-box;
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
   }
-
-  *::-webkit-scrollbar-thumb:active {
-    background: hsl(var(--muted-foreground) / 0.6);
-    background-clip: padding-box;
-  }
-
-  /* Dark mode scrollbar adjustments */
-  .dark *::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.4);
-    background-clip: padding-box;
-  }
-
-  .dark *::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.6);
-    background-clip: padding-box;
-  }
-
-  .dark *::-webkit-scrollbar-thumb:active {
-    background: hsl(var(--muted-foreground) / 0.7);
-    background-clip: padding-box;
-  }
-
-  .dark * {
-    scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent;
-  }
-
-  /* Optional: Accent scrollbar for specific containers with LearnifyTube brand */
-  .scrollbar-brand {
-    scrollbar-color: hsl(217.2 91.2% 59.8% / 0.4) transparent;
-  }
-
-  .scrollbar-brand::-webkit-scrollbar-thumb {
-    background: hsl(217.2 91.2% 59.8% / 0.4);
-    background-clip: padding-box;
-  }
-
-  .scrollbar-brand::-webkit-scrollbar-thumb:hover {
-    background: hsl(217.2 91.2% 59.8% / 0.6);
-    background-clip: padding-box;
-  }
-
-  .dark .scrollbar-brand {
-    scrollbar-color: hsl(217.2 91.2% 59.8% / 0.3) transparent;
-  }
-
-  .dark .scrollbar-brand::-webkit-scrollbar-thumb {
-    background: hsl(217.2 91.2% 59.8% / 0.3);
-    background-clip: padding-box;
-  }
-
-  .dark .scrollbar-brand::-webkit-scrollbar-thumb:hover {
-    background: hsl(217.2 91.2% 59.8% / 0.5);
-    background-clip: padding-box;
-  }
-}
-
-/* Task list styles */
-.ProseMirror ul[data-type="taskList"] {
-  list-style: none;
-  padding: 0;
-}
-
-.ProseMirror ul[data-type="taskList"] li {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 0.5em;
-}
-
-.ProseMirror ul[data-type="taskList"] li > label {
-  flex: 0 0 auto;
-  margin-right: 0.5rem;
-  user-select: none;
-}
-
-.ProseMirror ul[data-type="taskList"] li > div {
-  flex: 1 1 auto;
-  min-height: 24px;
-  display: flex;
-  align-items: center;
-}
-
-.ProseMirror ul[data-type="taskList"] li > div > p {
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* RichTextEditor dark mode styles */
-.dark .ProseMirror {
-  color: white;
-}
-
-.dark .ProseMirror p {
-  color: white;
-}
-
-.dark .ProseMirror h1,
-.dark .ProseMirror h2,
-.dark .ProseMirror h3,
-.dark .ProseMirror h4,
-.dark .ProseMirror h5,
-.dark .ProseMirror h6 {
-  color: white;
-}
-
-.dark .ProseMirror strong {
-  color: white;
-}
-
-.dark .ProseMirror em {
-  color: white;
-}
-
-.dark .ProseMirror code {
-  color: white;
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.dark .ProseMirror pre {
-  color: white;
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.dark .ProseMirror blockquote {
-  color: white;
-  border-left-color: rgba(255, 255, 255, 0.3);
-}
-
-.dark .ProseMirror ul,
-.dark .ProseMirror ol {
-  color: white;
-}
-
-.dark .ProseMirror li {
-  color: white;
-}
-
-.dark .ProseMirror a {
-  color: #60a5fa;
-}
-
-.dark .ProseMirror a:hover {
-  color: #93c5fd;
-}
-
-/* For the rendered read-only view */
-.task-list {
-  list-style: none;
-  padding: 0;
-}
-
-.task-list li {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5em;
-}
-
-.task-list li input[type="checkbox"] {
-  margin-right: 0.5rem;
-}
-
-.task-list li p {
-  margin: 0;
-  line-height: 1.5;
 }

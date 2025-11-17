@@ -150,7 +150,7 @@ async function createTray(): Promise<void> {
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: "Show LearnifyTube",
+      label: "Show CanCut",
       click: () => {
         if (mainWindow) {
           mainWindow.show();
@@ -174,7 +174,7 @@ async function createTray(): Promise<void> {
   ]);
 
   tray.setContextMenu(contextMenu);
-  tray.setToolTip("LearnifyTube");
+  tray.setToolTip("CanCut");
 
   tray.setTitle("");
 
@@ -324,7 +324,8 @@ app.whenReady().then(async () => {
             "connect-src 'self' https://*.posthog.com; " +
             "img-src 'self' data: blob: file: local-file: https://*.posthog.com https://i.ytimg.com https://*.ytimg.com https://yt3.ggpht.com; " +
             "media-src 'self' blob: file: local-file:; " +
-            "style-src 'self' 'unsafe-inline'; " +
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+            "font-src 'self' data: https://fonts.gstatic.com; " +
             "frame-src 'self';",
         ],
       },

@@ -1,16 +1,15 @@
 
 
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
 import { HeaderBase } from "./header-base";
-import Image from "next/image";
 import { ThemeToggle } from "./theme-toggle";
 
 export function Header() {
   const leftContent = (
-    <Link href="/" className="flex items-center gap-3">
-      <Image
+    <Link to="/" className="flex items-center gap-3">
+      <img
         src="/logo.svg"
         alt="OpenCut Logo"
         className="invert dark:invert-0"
@@ -24,18 +23,18 @@ export function Header() {
   const rightContent = (
     <nav className="flex items-center gap-2">
       <div className="flex items-center gap-4">
-        <Link href="/blog">
-          <Button variant="text" className="text-sm p-0">
+        <Link to="/blog">
+          <Button variant="ghost" className="text-sm p-0">
             Blog
           </Button>
         </Link>
-        <Link href="/contributors">
-          <Button variant="text" className="text-sm p-0">
+        <Link to="/contributors">
+          <Button variant="ghost" className="text-sm p-0">
             Contributors
           </Button>
         </Link>
       </div>
-      <Link href="/projects">
+      <Link to="/projects">
         <Button size="sm" className="text-sm ml-2">
           Projects
           <ArrowRight className="h-4 w-4" />

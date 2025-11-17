@@ -10,7 +10,7 @@ export default function EditorLayout({
   return (
     <SidebarProvider>
       <div className="flex h-screen flex-col">
-        <DragWindowRegion title="LearnifyTube" />
+        <DragWindowRegion title="CanCut" />
         <main className="flex-1 overflow-hidden bg-background">{children}</main>
       </div>
     </SidebarProvider>
