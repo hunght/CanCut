@@ -1,12 +1,10 @@
+@import "tailwindcss";
+
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap");
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 :root {
   /* Custom colors - light mode (default) */
@@ -86,31 +84,16 @@
   --panel-accent: hsl(0 0% 15%);
 }
 
-@layer base {
-  /*
-    The default border color has changed to `currentcolor` in Tailwind CSS v4,
-    so we've added these compatibility styles to make sure everything still
-    looks the same as it did with Tailwind CSS v3.
+/* Default base styles for Tailwind v4 */
+* {
+  border-color: hsl(var(--border));
+}
 
-    If we ever want to remove these styles, we need to add an explicit border
-    color utility to any element that depends on these defaults.
-  */
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-  /* Other default base styles */
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-    /* Prevent back/forward swipe */
-    overscroll-behavior-x: contain;
-  }
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  /* Prevent back/forward swipe */
+  overscroll-behavior-x: contain;
 }
 
 @theme inline {
