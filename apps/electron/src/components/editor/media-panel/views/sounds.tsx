@@ -1,4 +1,4 @@
-
+"use client";
 
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useEffect } from "react";
@@ -546,10 +546,11 @@ function AudioItem({
         <Button
           variant="text"
           size="icon"
-          className={`hover:text-foreground !opacity-100 w-auto ${isSaved
+          className={`hover:text-foreground !opacity-100 w-auto ${
+            isSaved
               ? "text-red-500 hover:text-red-600"
               : "text-muted-foreground"
-            }`}
+          }`}
           onClick={handleSaveClick}
           title={isSaved ? "Remove from saved" : "Save sound"}
         >

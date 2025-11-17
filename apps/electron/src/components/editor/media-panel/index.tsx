@@ -1,4 +1,4 @@
-
+"use client";
 
 import { TabBar } from "./tabbar";
 import { MediaView } from "./views/media";

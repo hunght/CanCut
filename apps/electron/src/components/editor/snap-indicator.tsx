@@ -1,4 +1,4 @@
-
+"use client";
 
 import { SnapPoint } from "@/hooks/use-timeline-snapping";
 import { TIMELINE_CONSTANTS } from "@/constants/timeline-constants";

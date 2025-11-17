@@ -1,10 +1,9 @@
-
+"use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useProjectStore } from "@/stores/project-store";
 import { useMediaStore } from "@/stores/media-store";
-// StorageProvider - No longer needed for IndexedDB checks in Electron
-// All storage is handled via SQLite through tRPC
+import { storageService } from "@/lib/storage/storage-service";
 import { toast } from "sonner";
 
 interface StorageContextType {
@@ -43,14 +42,22 @@ export function StorageProvider({ children }: StorageProviderProps) {
       setStatus((prev) => ({ ...prev, isLoading: true }));
 
       try {
+        // Check browser support
+        const hasSupport = storageService.isFullySupported();
+
+        if (!hasSupport) {
+          toast.warning(
+            "Storage not fully supported. Some features may not work."
+          );
+        }
+
         // Load saved projects (media will be loaded when a project is loaded)
-        // In Electron, all storage is handled via SQLite through tRPC
         await loadAllProjects();
 
         setStatus({
           isInitialized: true,
           isLoading: false,
-          hasSupport: true, // SQLite is always available in Electron
+          hasSupport,
           error: null,
         });
       } catch (error) {
@@ -58,7 +65,7 @@ export function StorageProvider({ children }: StorageProviderProps) {
         setStatus({
           isInitialized: false,
           isLoading: false,
-          hasSupport: true,
+          hasSupport: storageService.isFullySupported(),
           error: error instanceof Error ? error.message : "Unknown error",
         });
       }

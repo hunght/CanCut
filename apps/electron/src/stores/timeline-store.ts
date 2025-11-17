@@ -14,7 +14,7 @@ import {
 import { useMediaStore, getMediaAspectRatio } from "./media-store";
 import { MediaFile, MediaType } from "@/types/media";
 import { findBestCanvasPreset } from "@/lib/editor-utils";
-import { editorStorage } from "@/services/editor-storage";
+import { storageService } from "@/lib/storage/storage-service";
 import { useProjectStore } from "./project-store";
 import { useSceneStore } from "./scene-store";
 import { generateUUID } from "@/lib/utils";
@@ -268,9 +268,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 
     if (activeProject && currentScene) {
       try {
-        await editorStorage.saveTimeline({
+        await storageService.saveTimeline({
           projectId: activeProject.id,
-          tracksJson: JSON.stringify(get()._tracks),
+          tracks: get()._tracks,
           sceneId: currentScene.id,
         });
       } catch (error) {
@@ -1174,7 +1174,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 
     getProjectThumbnail: async (projectId) => {
       try {
-        const project = await editorStorage.loadProject({ id: projectId });
+        const project = await storageService.loadProject({ id: projectId });
         if (!project) return null;
 
         // For scene-based projects, use main scene timeline
@@ -1185,13 +1185,13 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
           sceneId = mainScene?.id;
         }
 
-        const tracksJson = await editorStorage.loadTimeline({
+        const tracks = await storageService.loadTimeline({
           projectId,
           sceneId,
         });
-        const tracks = tracksJson ? JSON.parse(tracksJson) as TimelineTrack[] : null;
-        // TODO: Load media items from editorStorage
-        const mediaItems: MediaFile[] = [];
+        const mediaItems = await storageService.loadAllMediaFiles({
+          projectId,
+        });
 
         if (!tracks || !mediaItems.length) return null;
 
@@ -1299,11 +1299,10 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
       sceneId?: string;
     }) => {
       try {
-        const tracksJson = await editorStorage.loadTimeline({
+        const tracks = await storageService.loadTimeline({
           projectId,
           sceneId,
         });
-        const tracks = tracksJson ? JSON.parse(tracksJson) as TimelineTrack[] : null;
 
         if (tracks) {
           updateTracks(tracks);
@@ -1329,9 +1328,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
     }) => {
       const { _tracks } = get();
       try {
-        await editorStorage.saveTimeline({
+        await storageService.saveTimeline({
           projectId,
-          tracksJson: JSON.stringify(_tracks),
+          tracks: _tracks,
           sceneId,
         });
       } catch (error) {

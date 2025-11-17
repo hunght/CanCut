@@ -1,4 +1,4 @@
-
+"use client";
 
 import { useRef, useState, useEffect } from "react";
 import { TimelineTrack } from "@/types/timeline";

@@ -1,4 +1,4 @@
-
+"use client";
 
 import { motion } from "motion/react";
 import { Button } from "../ui/button";
@@ -6,13 +6,14 @@ import { SponsorButton } from "../ui/sponsor-button";
 import { VercelIcon } from "../icons";
 import { ArrowRight } from "lucide-react";
 
+import Image from "next/image";
 import { Handlebars } from "./handlebars";
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 
 export function Hero() {
   return (
     <div className="min-h-[calc(100svh-4.5rem)] flex flex-col justify-between items-center text-center px-4">
-      <img
+      <Image
         className="absolute top-0 left-0 -z-50 size-full object-cover invert dark:invert-0 opacity-85"
         src="/landing-page-dark.png"
         height={1903.5}
@@ -63,7 +64,7 @@ export function Hero() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
         >
-          <Link to="/projects">
+          <Link href="/projects">
             <Button
               type="submit"
               size="lg"

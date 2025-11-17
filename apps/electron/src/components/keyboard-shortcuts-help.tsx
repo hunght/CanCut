@@ -1,4 +1,4 @@
-
+"use client";
 
 import { Keyboard } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -231,8 +231,9 @@ function EditableShortcutKey({
     <Button
       variant="outline"
       size="sm"
-      className={`font-sans px-2 min-w-6 min-h-6 leading-none mr-1 hover:bg-opacity-80 ${isRecording ? "border-primary bg-primary/10" : "border bg-accent/50"
-        }`}
+      className={`font-sans px-2 min-w-6 min-h-6 leading-none mr-1 hover:bg-opacity-80 ${
+        isRecording ? "border-primary bg-primary/10" : "border bg-accent/50"
+      }`}
       onClick={handleClick}
       title={
         isRecording ? "Press any key combination..." : "Click to edit shortcut"

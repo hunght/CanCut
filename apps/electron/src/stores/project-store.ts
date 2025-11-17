@@ -1,6 +1,6 @@
 import { TProject, BlurIntensity, Scene } from "@/types/project";
 import { create } from "zustand";
-import { editorStorage } from "@/services/editor-storage";
+import { storageService } from "@/lib/storage/storage-service";
 import { toast } from "sonner";
 import { useMediaStore } from "./media-store";
 import { useTimelineStore } from "./timeline-store";
@@ -121,7 +121,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     };
 
     try {
-      await editorStorage.saveProject({ project: updatedProject });
+      await storageService.saveProject({ project: updatedProject });
       set({ activeProject: updatedProject });
       await get().loadAllProjects(); // Refresh the list
     } catch (error) {
@@ -169,7 +169,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     };
 
     try {
-      await editorStorage.saveProject({ project: updatedProject });
+      await storageService.saveProject({ project: updatedProject });
       set({ activeProject: updatedProject });
       await get().loadAllProjects(); // Refresh the list
     } catch (error) {
@@ -198,7 +198,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     });
 
     try {
-      await editorStorage.saveProject({ project: newProject });
+      await storageService.saveProject({ project: newProject });
       // Reload all projects to update the list
       await get().loadAllProjects();
       return newProject.id;
@@ -223,7 +223,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     sceneStore.clearScenes();
 
     try {
-      const project = await editorStorage.loadProject({ id });
+      const project = await storageService.loadProject({ id });
       if (project) {
         set({ activeProject: project });
 
@@ -268,7 +268,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       const currentScene = sceneStore.currentScene;
 
       await Promise.all([
-        editorStorage.saveProject({ project: activeProject }),
+        storageService.saveProject({ project: activeProject }),
         timelineStore.saveProjectTimeline({
           projectId: activeProject.id,
           sceneId: currentScene?.id,
@@ -286,7 +286,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     }
 
     try {
-      const projects = await editorStorage.loadAllProjects();
+      const projects = await storageService.loadAllProjects();
       set({ savedProjects: projects });
     } catch (error) {
       console.error("Failed to load projects:", error);
@@ -298,8 +298,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   deleteProject: async (id: string) => {
     try {
       await Promise.all([
-        editorStorage.removeAllMediaForProject({ projectId: id }),
-        editorStorage.deleteProject({ id }),
+        storageService.deleteProjectMedia({ projectId: id }),
+        storageService.deleteProjectTimeline({ projectId: id }),
+        storageService.deleteProject({ id }),
       ]);
       await get().loadAllProjects(); // Refresh the list
 
@@ -351,7 +352,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     };
 
     try {
-      await editorStorage.saveProject({ project: updatedProject });
+      await storageService.saveProject({ project: updatedProject });
 
       await get().loadAllProjects();
 
@@ -371,7 +372,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   duplicateProject: async (projectId: string) => {
     try {
-      const project = await editorStorage.loadProject({ id: projectId });
+      const project = await storageService.loadProject({ id: projectId });
       if (!project) {
         toast.error("Project not found", {
           description: "Please try again",
@@ -405,7 +406,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         updatedAt: new Date(),
       };
 
-      await editorStorage.saveProject({ project: newProject });
+      await storageService.saveProject({ project: newProject });
       await get().loadAllProjects();
       return newProject.id;
     } catch (error) {
@@ -429,7 +430,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     };
 
     try {
-      await editorStorage.saveProject({ project: updatedProject });
+      await storageService.saveProject({ project: updatedProject });
       set({ activeProject: updatedProject });
       await get().loadAllProjects();
     } catch (error) {
@@ -460,7 +461,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     };
 
     try {
-      await editorStorage.saveProject({ project: updatedProject });
+      await storageService.saveProject({ project: updatedProject });
       set({ activeProject: updatedProject });
       await get().loadAllProjects();
     } catch (error) {
@@ -482,7 +483,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     };
 
     try {
-      await editorStorage.saveProject({ project: updatedProject });
+      await storageService.saveProject({ project: updatedProject });
       set({ activeProject: updatedProject });
       await get().loadAllProjects();
     } catch (error) {
@@ -505,7 +506,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     };
 
     try {
-      await editorStorage.saveProject({ project: updatedProject });
+      await storageService.saveProject({ project: updatedProject });
       set({ activeProject: updatedProject });
       await get().loadAllProjects();
     } catch (error) {

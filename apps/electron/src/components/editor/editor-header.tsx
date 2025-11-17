@@ -1,4 +1,4 @@
-
+"use client";
 
 import { Button } from "../ui/button";
 import { ChevronDown, ArrowLeft, SquarePen, Trash } from "lucide-react";
@@ -61,12 +61,12 @@ export function EditorHeader() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-40 z-100">
-          <Link to="/projects">
-            <DropdownMenuItem className="flex items-center gap-1.5">
+          <DropdownMenuItem asChild>
+            <Link to="/projects" className="flex items-center gap-1.5">
               <ArrowLeft className="h-4 w-4" />
               Projects
-            </DropdownMenuItem>
-          </Link>
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem
             className="flex items-center gap-1.5"
             onClick={() => setIsRenameDialogOpen(true)}

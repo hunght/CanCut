@@ -1,4 +1,4 @@
-
+"use client";
 
 import { useDragDrop } from "@/hooks/use-drag-drop";
 import { processMediaFiles } from "@/lib/media-processing";

@@ -1,4 +1,4 @@
-
+"use client";
 
 import { useMemo } from "react";
 import { useKeybindingsStore } from "@/stores/keybindings-store";

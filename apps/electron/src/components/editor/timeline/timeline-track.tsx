@@ -1,4 +1,4 @@
-
+"use client";
 
 import { useRef, useState, useEffect } from "react";
 import { useTimelineStore } from "@/stores/timeline-store";
@@ -1124,12 +1124,13 @@ export function TimelineTrackContent({
       >
         {track.elements.length === 0 ? (
           <div
-            className={`h-full w-full rounded-sm border-2 border-dashed flex items-center justify-center text-xs text-muted-foreground transition-colors ${isDropping
+            className={`h-full w-full rounded-sm border-2 border-dashed flex items-center justify-center text-xs text-muted-foreground transition-colors ${
+              isDropping
                 ? wouldOverlap
                   ? "border-red-500 bg-red-500/10 text-red-600"
                   : "border-blue-500 bg-blue-500/10 text-blue-600"
                 : "border-muted/30"
-              }`}
+            }`}
           >
             {isDropping
               ? wouldOverlap

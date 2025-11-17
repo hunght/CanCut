@@ -1,6 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useParams, useRouter } from "@tanstack/react-router";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
 import { MediaPanel } from "@/components/editor/media-panel";
 import { PropertiesPanel } from "@/components/editor/properties-panel";
 import { Timeline } from "@/components/editor/timeline";
@@ -8,16 +12,10 @@ import { PreviewPanel } from "@/components/editor/preview-panel";
 import { EditorHeader } from "@/components/editor/editor-header";
 import { usePanelStore } from "@/stores/panel-store";
 import { useProjectStore } from "@/stores/project-store";
-import { useTimelineStore } from "@/stores/timeline-store";
-import { Button } from "@/components/ui/button";
+import { EditorProvider } from "@/components/providers/editor-provider";
+import { usePlaybackControls } from "@/hooks/use-playback-controls";
 
 export default function ProjectEditorPage() {
-  const { projectId } = useParams({ from: "/editor/$projectId" });
-  const router = useRouter();
-  const { activeProject, loadProject } = useProjectStore();
-  const { loadProjectTimeline } = useTimelineStore();
-  const [error, setError] = useState<string | null>(null);
-
   const {
     toolsPanel,
     previewPanel,
@@ -33,53 +31,127 @@ export default function ProjectEditorPage() {
     resetCounter,
   } = usePanelStore();
 
+  const {
+    activeProject,
+    loadProject,
+    createNewProject,
+    isInvalidProjectId,
+    markProjectIdAsInvalid,
+  } = useProjectStore();
+
+  const { projectId } = useParams({ from: "/editor/$projectId" });
+  const router = useRouter();
+  const handledProjectIds = useRef<Set<string>>(new Set());
+  const isInitializingRef = useRef<boolean>(false);
+
+  usePlaybackControls();
+
   useEffect(() => {
-    let mounted = true;
-    setError(null);
-    (async () => {
+    let isCancelled = false;
+
+    const initProject = async () => {
+      if (!projectId) {
+        return;
+      }
+
+      // Prevent duplicate initialization
+      if (isInitializingRef.current) {
+        return;
+      }
+
+      // Check if project is already loaded
+      if (activeProject?.id === projectId) {
+        return;
+      }
+
+      // Check global invalid tracking first (most important for preventing duplicates)
+      if (isInvalidProjectId(projectId)) {
+        return;
+      }
+
+      // Check if we've already handled this project ID locally
+      if (handledProjectIds.current.has(projectId)) {
+        return;
+      }
+
+      // Mark as initializing to prevent race conditions
+      isInitializingRef.current = true;
+      handledProjectIds.current.add(projectId);
+
       try {
         await loadProject(projectId);
-        if (!mounted) return;
-        const sceneId = useProjectStore.getState().activeProject?.currentSceneId;
-        await loadProjectTimeline({ projectId, sceneId });
-      } catch (err) {
-        if (!mounted) return;
-        const errorMessage = err instanceof Error ? err.message : "Failed to load project";
-        setError(errorMessage);
-        console.error("Failed to load project:", err);
+
+        // Check if component was unmounted during async operation
+        if (isCancelled) {
+          return;
+        }
+
+        // Project loaded successfully
+        isInitializingRef.current = false;
+      } catch (error) {
+        // Check if component was unmounted during async operation
+        if (isCancelled) {
+          return;
+        }
+
+        // More specific error handling - only create new project for actual "not found" errors
+        const isProjectNotFound =
+          error instanceof Error &&
+          (error.message.includes("not found") ||
+            error.message.includes("does not exist") ||
+            error.message.includes("Project not found"));
+
+        if (isProjectNotFound) {
+          // Mark this project ID as invalid globally BEFORE creating project
+          markProjectIdAsInvalid(projectId);
+
+          try {
+            const newProjectId = await createNewProject("Untitled Project");
+
+            // Check again if component was unmounted
+            if (isCancelled) {
+              return;
+            }
+
+            router.navigate({ to: `/editor/${newProjectId}` });
+          } catch (createError) {
+            console.error("Failed to create new project:", createError);
+          }
+        } else {
+          // For other errors (storage issues, corruption, etc.), don't create new project
+          console.error(
+            "Project loading failed with recoverable error:",
+            error
+          );
+          // Remove from handled set so user can retry
+          handledProjectIds.current.delete(projectId);
+        }
+
+        isInitializingRef.current = false;
       }
-    })();
-    return () => {
-      mounted = false;
     };
-  }, [projectId, loadProject, loadProjectTimeline]);
 
-  if (error) {
-    return (
-      <div className="flex h-full w-full items-center justify-center flex-col gap-4">
-        <p className="text-destructive">{error}</p>
-        <Button
-          onClick={() => router.navigate({ to: "/projects" })}
-          variant="default"
-        >
-          Go to Projects
-        </Button>
-      </div>
-    );
-  }
+    initProject();
 
-  if (!activeProject) {
-    return (
-      <div className="flex h-full w-full items-center justify-center">
-        <p className="text-muted-foreground">Loading project...</p>
-      </div>
-    );
-  }
+    // Cleanup function to cancel async operations
+    return () => {
+      isCancelled = true;
+      isInitializingRef.current = false;
+    };
+  }, [
+    projectId,
+    loadProject,
+    createNewProject,
+    router,
+    isInvalidProjectId,
+    markProjectIdAsInvalid,
+  ]);
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-background">
-      <EditorHeader />
-      <div className="min-h-0 min-w-0 flex-1">
+    <EditorProvider>
+      <div className="h-screen w-screen flex flex-col bg-background overflow-hidden">
+        <EditorHeader />
+        <div className="flex-1 min-h-0 min-w-0">
         {activePreset === "media" ? (
           <ResizablePanelGroup
             key={`media-${activePreset}-${resetCounter}`}
@@ -363,7 +435,8 @@ export default function ProjectEditorPage() {
             </ResizablePanel>
           </ResizablePanelGroup>
         )}
+        </div>
       </div>
-    </div>
+    </EditorProvider>
   );
 }

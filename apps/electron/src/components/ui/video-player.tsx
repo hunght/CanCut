@@ -1,4 +1,4 @@
-
+"use client";
 
 import { useRef, useEffect } from "react";
 import { usePlaybackStore } from "@/stores/playback-store";
@@ -99,7 +99,7 @@ export function VideoPlayer({
     if (!video) return;
 
     if (isPlaying && isInClipRange) {
-      video.play().catch(() => { });
+      video.play().catch(() => {});
     } else {
       video.pause();
     }

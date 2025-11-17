@@ -1,4 +1,4 @@
-
+"use client";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "../../ui/button";
@@ -378,7 +378,7 @@ export function Timeline() {
         Math.min(
           duration,
           (mouseX + scrollLeft) /
-          (TIMELINE_CONSTANTS.PIXELS_PER_SECOND * zoomLevel)
+            (TIMELINE_CONSTANTS.PIXELS_PER_SECOND * zoomLevel)
         )
       );
 

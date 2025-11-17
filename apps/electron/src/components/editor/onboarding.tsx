@@ -1,4 +1,4 @@
-
+"use client";
 
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";

@@ -1,4 +1,4 @@
-
+"use client";
 
 import { useTimelineStore } from "@/stores/timeline-store";
 import { TimelineElement, TimelineTrack } from "@/types/timeline";
@@ -281,7 +281,7 @@ export function PreviewPanel() {
               element.mediaId === "test"
                 ? null
                 : mediaFiles.find((item) => item.id === element.mediaId) ||
-                null;
+                  null;
           }
           activeElements.push({ element, track, mediaItem });
         }
@@ -312,7 +312,7 @@ export function PreviewPanel() {
       for (const src of playingSourcesRef.current) {
         try {
           src.stop();
-        } catch { }
+        } catch {}
       }
       playingSourcesRef.current.clear();
     };
@@ -335,7 +335,7 @@ export function PreviewPanel() {
       if (audioContextRef.current!.state === "suspended") {
         try {
           await audioContextRef.current!.resume();
-        } catch { }
+        } catch {}
       }
       const gainValue = muted ? 0 : Math.max(0, Math.min(1, volume));
       audioGainRef.current!.gain.setValueAtTime(
@@ -424,7 +424,7 @@ export function PreviewPanel() {
         try {
           src.start(startAt, localTime, playDuration);
           playingSourcesRef.current.add(src);
-        } catch { }
+        } catch {}
       }
     };
 
@@ -433,7 +433,7 @@ export function PreviewPanel() {
       for (const src of playingSourcesRef.current) {
         try {
           src.stop();
-        } catch { }
+        } catch {}
       }
       playingSourcesRef.current.clear();
       void scheduleNow();
@@ -446,7 +446,7 @@ export function PreviewPanel() {
     for (const src of playingSourcesRef.current) {
       try {
         src.stop();
-      } catch { }
+      } catch {}
     }
     playingSourcesRef.current.clear();
     if (isPlaying) {
@@ -459,7 +459,7 @@ export function PreviewPanel() {
       for (const src of playingSourcesRef.current) {
         try {
           src.stop();
-        } catch { }
+        } catch {}
       }
       playingSourcesRef.current.clear();
     };

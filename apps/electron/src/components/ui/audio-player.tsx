@@ -1,4 +1,4 @@
-
+"use client";
 
 import { useRef, useEffect } from "react";
 import { usePlaybackStore } from "@/stores/playback-store";
@@ -97,7 +97,7 @@ export function AudioPlayer({
     if (!audio) return;
 
     if (isPlaying && isInClipRange && !trackMuted) {
-      audio.play().catch(() => { });
+      audio.play().catch(() => {});
     } else {
       audio.pause();
     }

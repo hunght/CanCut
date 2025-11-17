@@ -1,4 +1,4 @@
-
+"use client";
 
 import { useMediaStore } from "@/stores/media-store";
 import { useTimelineStore } from "@/stores/timeline-store";

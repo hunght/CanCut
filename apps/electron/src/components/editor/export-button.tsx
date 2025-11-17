@@ -1,4 +1,4 @@
-
+"use client";
 
 import { useState } from "react";
 import { TransitionUpIcon } from "../icons";
@@ -254,7 +254,7 @@ function ExportPopover({
                   <Button
                     variant="outline"
                     className="rounded-md w-full"
-                    onClick={() => { }}
+                    onClick={() => {}}
                   >
                     Cancel
                   </Button>

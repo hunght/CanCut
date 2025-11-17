@@ -11,7 +11,13 @@ function ensureDirSync(dir) {
 
 function copyFileSync(src, dest) {
   ensureDirSync(path.dirname(dest));
-  fs.copyFileSync(src, dest);
+  // Explicitly overwrite existing files
+  if (fs.existsSync(dest)) {
+    fs.unlinkSync(dest);
+  }
+  // Use readFileSync + writeFileSync for better compatibility across platforms
+  const content = fs.readFileSync(src);
+  fs.writeFileSync(dest, content);
 }
 
 function copyDirFiltered(srcDir, destDir, includes) {
@@ -42,6 +48,10 @@ function copyDirRecursiveOverwrite(srcDir, destDir) {
     if (entry.isDirectory()) {
       copyDirRecursiveOverwrite(srcPath, destPath);
     } else {
+      // Remove existing file before copying to ensure overwrite
+      if (fs.existsSync(destPath)) {
+        fs.unlinkSync(destPath);
+      }
       copyFileSync(srcPath, destPath);
     }
   }
@@ -69,6 +79,17 @@ function main() {
     }
     const srcPath = path.join(webSrc, entry.name);
     const destPath = path.join(electronSrc, entry.name);
+
+    // Remove existing file/directory before copying to ensure overwrite
+    if (fs.existsSync(destPath)) {
+      console.log(`[remove] Removing existing: ${destPath}`);
+      if (entry.isDirectory()) {
+        fs.rmSync(destPath, { recursive: true, force: true });
+      } else {
+        fs.unlinkSync(destPath);
+      }
+    }
+
     console.log(`[copy] ${srcPath} -> ${destPath}`);
     if (entry.isDirectory()) {
       copyDirRecursiveOverwrite(srcPath, destPath);

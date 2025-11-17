@@ -1,4 +1,4 @@
-
+"use client";
 
 import {
   motion,
@@ -89,11 +89,11 @@ export function Handlebars({ children }: HandlebarsProps) {
           className="inline-flex items-center justify-center w-full h-full px-9 relative rounded-2xl will-change-auto"
           style={{
             mask: useMotionTemplate`linear-gradient(90deg,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0) ${leftGradient}%,
-            rgba(0, 0, 0) ${leftGradient}%,
-            rgba(0, 0, 0) ${rightGradient}%,
-            rgba(255, 255, 255, 0) ${rightGradient}%,
+            rgba(255, 255, 255, 0) 0%, 
+            rgba(255, 255, 255, 0) ${leftGradient}%, 
+            rgba(0, 0, 0) ${leftGradient}%, 
+            rgba(0, 0, 0) ${rightGradient}%, 
+            rgba(255, 255, 255, 0) ${rightGradient}%, 
             rgba(255, 255, 255, 0) 100%)`,
           }}
         >

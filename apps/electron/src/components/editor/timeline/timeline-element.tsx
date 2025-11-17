@@ -1,4 +1,4 @@
-
+"use client";
 
 import {
   Scissors,
@@ -185,8 +185,9 @@ export function TimelineElement({
       return (
         <div className="w-full h-full flex items-center justify-center">
           <div
-            className={`w-full h-full relative ${isSelected ? "bg-primary" : "bg-transparent"
-              }`}
+            className={`w-full h-full relative ${
+              isSelected ? "bg-primary" : "bg-transparent"
+            }`}
           >
             <div
               className={`absolute top-[0.25rem] bottom-[0.25rem] left-0 right-0`}
@@ -237,8 +238,9 @@ export function TimelineElement({
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div
-          className={`absolute top-0 h-full select-none timeline-element ${isBeingDragged ? "z-50" : "z-10"
-            }`}
+          className={`absolute top-0 h-full select-none timeline-element ${
+            isBeingDragged ? "z-50" : "z-10"
+          }`}
           style={{
             left: `${elementLeft}px`,
             width: `${elementWidth}px`,
@@ -252,8 +254,9 @@ export function TimelineElement({
           <div
             className={`relative h-full rounded-[0.5rem] cursor-pointer overflow-hidden ${getTrackElementClasses(
               track.type
-            )} ${isSelected ? "" : ""} ${isBeingDragged ? "z-50" : "z-10"
-              } ${element.hidden ? "opacity-50" : ""}`}
+            )} ${isSelected ? "" : ""} ${
+              isBeingDragged ? "z-50" : "z-10"
+            } ${element.hidden ? "opacity-50" : ""}`}
             onClick={(e) => onElementClick && onElementClick(e, element)}
             onMouseDown={handleElementMouseDown}
             onContextMenu={(e) =>
@@ -298,13 +301,13 @@ export function TimelineElement({
           (isMultipleSelected &&
             isCurrentElementSelected &&
             canSplitSelected)) && (
-            <ContextMenuItem onClick={handleElementSplitContext}>
-              <Scissors className="h-4 w-4 mr-2" />
-              {isMultipleSelected && isCurrentElementSelected
-                ? `Split ${selectedElements.length} elements at playhead`
-                : "Split at playhead"}
-            </ContextMenuItem>
-          )}
+          <ContextMenuItem onClick={handleElementSplitContext}>
+            <Scissors className="h-4 w-4 mr-2" />
+            {isMultipleSelected && isCurrentElementSelected
+              ? `Split ${selectedElements.length} elements at playhead`
+              : "Split at playhead"}
+          </ContextMenuItem>
+        )}
 
         <ContextMenuItem onClick={handleElementCopyContext}>
           <Copy className="h-4 w-4 mr-2" />
